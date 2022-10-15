@@ -1,6 +1,10 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 import Win95AppIcon from "./base/Win95AppIcon.vue";
+import moment from "moment";
+
+const currentTime = ref<moment.Moment>(moment());
+setInterval(() => (currentTime.value = moment()), 1000);
 </script>
 
 <template>
@@ -15,7 +19,10 @@ import Win95AppIcon from "./base/Win95AppIcon.vue";
       <div class="taskbar-drabble"></div>
       <div class="icons-holder">
         <div class="taskbar-icons-holder"></div>
-        <div class="special-icons-holder"></div>
+        <div class="special-icons-holder">
+          <img src="images/win95/loudspeaker_rays-1.png" />
+          <div class="clock-icon">{{ currentTime.format("hh:mm A") }}</div>
+        </div>
       </div>
     </div>
   </div>
@@ -82,7 +89,7 @@ import Win95AppIcon from "./base/Win95AppIcon.vue";
 .taskbar-icons-holder {
   width: 100%;
 
-  background-color: red;
+  /* background-color: red; */
 }
 
 .taskbar-drabble {
@@ -93,6 +100,22 @@ import Win95AppIcon from "./base/Win95AppIcon.vue";
 
 .special-icons-holder {
   width: 79px;
-  box-shadow: 0.5px 0.5px 0 0.5px #ffffff, inset 1px 1px black;
+  box-shadow: 0.5px 0.5px 0 0.5px #ffffff, inset 1px 1px #87888f;
+  align-items: center;
+  justify-content: center;
+
+  padding: 2px;
+  box-sizing: border-box;
+}
+
+.special-icons-holder > * {
+  height: 16px;
+}
+
+.clock-icon {
+  width: 100%;
+  text-align: center;
+  font-size: 10px;
+  line-height: 18px;
 }
 </style>

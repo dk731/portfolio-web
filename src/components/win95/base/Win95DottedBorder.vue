@@ -2,8 +2,6 @@
 import type { DesktopPoint } from "@/stores/Win95DesktopState";
 import type { StyleValue } from "vue";
 
-// p1 - left, top
-// p2 - right, bottom
 const props = withDefaults(
   defineProps<{
     isFirst?: boolean;

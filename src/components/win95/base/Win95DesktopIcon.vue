@@ -3,22 +3,24 @@ const props = defineProps<{ icon: string }>();
 </script>
 
 <template>
-  <div class="icon-holder">
-    <img
+  <div class="win95-desktop-icon-holder">
+    <div
       class="icon-image"
       draggable="false"
-      :src="`images/win95/${props.icon}`"
+      :style="{ backgroundImage: `url(${props.icon})` }"
     />
   </div>
 </template>
 
 <style scoped>
-.icon-holder {
+.win95-desktop-icon-holder {
   position: relative;
 }
 
 .icon-image {
   width: 32px;
   height: 32px;
+
+  background-size: 100%;
 }
 </style>

@@ -3,13 +3,13 @@ const props = defineProps<{ icon: string }>();
 </script>
 
 <template>
-  <div class="window-holder">
+  <div class="win95-window-holder">
     <img class="application" :src="`images/win95/${props.icon}`" />
   </div>
 </template>
 
 <style scoped>
-.window-holder {
+.win95-window-holder {
   position: absolute;
 }
 </style>

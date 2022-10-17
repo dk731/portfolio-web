@@ -15,26 +15,29 @@ const props = withDefaults(
     isFirst: true,
   }
 );
-
-const myStyle: StyleValue = props.isFirst
-  ? {
-      position: `absolute`,
-      left: `${props.p1.x}px`,
-      top: `${props.p1.y}px`,
-      width: `${props.p2.x - props.p1.x}px`,
-      height: `${props.p2.y - props.p1.y}px`,
-    }
-  : {
-      position: `relative`,
-      left: `0px`,
-      top: `0px`,
-      width: `100%`,
-      height: `100%`,
-    };
 </script>
 
 <template>
-  <div class="win95-dotted-border" :style="myStyle">
+  <div
+    class="win95-dotted-border"
+    :style="
+      props.isFirst
+        ? {
+            position: `absolute`,
+            left: `${props[props.p1.x < props.p2.x ? 'p1' : 'p2'].x}px`,
+            top: `${props[props.p1.y < props.p2.y ? 'p1' : 'p2'].y}px`,
+            width: `${Math.abs(props.p2.x - props.p1.x)}px`,
+            height: `${Math.abs(props.p2.y - props.p1.y)}px`,
+          }
+        : {
+            position: `relative`,
+            left: `0px`,
+            top: `0px`,
+            width: `100%`,
+            height: `100%`,
+          }
+    "
+  >
     <Win95DottedBorder
       v-if="props.width > 1"
       :width="props.width - 1"
@@ -50,5 +53,7 @@ const myStyle: StyleValue = props.isFirst
   border: 1px dotted #ff9191;
   box-sizing: border-box;
   mix-blend-mode: difference;
+
+  pointer-events: none;
 }
 </style>

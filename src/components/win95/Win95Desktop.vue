@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, type VNodeRef } from "vue";
+import { onMounted, onUnmounted, ref, type VNode, type VNodeRef } from "vue";
 import Win95AppIcon from "./base/Win95DesktopIcon.vue";
 import moment from "moment";
 
@@ -8,35 +8,56 @@ import Win95StartApp from "./applications/Win95StartApp.vue";
 import Win95Taskbar from "./base/Win95Taskbar.vue";
 import Win95DesktopSelect from "./base/Win95DottedBorder.vue";
 import Win95DottedBorder from "./base/Win95DottedBorder.vue";
+import Win95DesktopUserSelect from "./base/Win95DesktopUserSelect.vue";
 
 const desktopState = useDesktopState();
+const desktopRef = ref(null as any);
+
+function onMouseMove(e: MouseEvent) {
+  const el = desktopRef.value.getBoundingClientRect();
+  if (desktopState.desktop.selectActive)
+    desktopState.desktop.selectRect.p2 = {
+      x: e.clientX - el.left,
+      y: e.clientY - el.top,
+    };
+}
 
 function onMouseDown(e: MouseEvent) {
-  console.log(e);
+  const el = desktopRef.value.getBoundingClientRect();
+
+  desktopState.desktop.selectRect.p1 = {
+    x: e.clientX - el.left,
+    y: e.clientY - el.top,
+  };
+  desktopState.desktop.selectActive = true;
 }
 
 function onMouseUp(e: MouseEvent) {
-  console.log(e);
+  desktopState.desktop.selectActive = false;
 }
+
+onMounted(() => document.addEventListener("mouseup", onMouseUp));
+onUnmounted(() => document.removeEventListener("mouseup", onMouseUp));
 </script>
 
 <template>
   <div class="win95-holder">
-    <div class="desktop-holder" @mousedown="onMouseDown" @mouseup="onMouseUp">
+    <div
+      class="desktop-holder"
+      @mousedown="onMouseDown"
+      @mousemove="onMouseMove"
+      ref="desktopRef"
+    >
       <Win95StartApp></Win95StartApp>
 
       <Win95AppIcon icon="images/win95/computer_explorer-4.png"></Win95AppIcon>
       <Win95AppIcon icon="images/win95/computer_explorer-3.png"></Win95AppIcon>
       <Win95AppIcon icon="images/win95/computer_explorer-5.png"></Win95AppIcon>
+
+      <Win95DesktopUserSelect />
     </div>
 
-    <Win95Taskbar> </Win95Taskbar>
-    <Win95DottedBorder
-      :width="4"
-      :p1="{ x: 0, y: 0 }"
-      :p2="{ x: 100, y: 100 }"
-    ></Win95DottedBorder>
-    <!-- <div class="user-select-rect"></div> -->
+    <Win95Taskbar />
   </div>
 </template>
 
@@ -76,14 +97,5 @@ function onMouseUp(e: MouseEvent) {
 
   width: 100%;
   height: 100%;
-}
-
-.user-select-rect {
-  position: absolute;
-
-  top: 0;
-  left: 0;
-  width: 100px;
-  height: 100px;
 }
 </style>

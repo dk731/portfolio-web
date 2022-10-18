@@ -16,6 +16,7 @@ const isSelected = ref<boolean>(true);
 
 const desktopState = useDesktopState();
 const myId = uuid4();
+const mySelectRect = { p1: { x: 90, y: 90 }, p2: { x: 110, y: 110 } };
 
 var isDoubleClick = false;
 function onMouseClick(e: MouseEvent) {
@@ -41,6 +42,23 @@ function runOpenClb() {
 function onKeyPress(e: KeyboardEvent) {
   if (e.key == "Enter" && desktopState.desktop.focusedApp == myId) runOpenClb();
 }
+
+desktopState.$subscribe((mutation, state) => {
+  // Skip all updates if desktop user select is not active
+  if (!desktopState.desktop.selectActive) return;
+
+  const userRect = desktopState.desktop.selectRect;
+  console.log(userRect);
+
+  const res =
+    mySelectRect.p1.x < userRect.p2.x &&
+    mySelectRect.p2.x > userRect.p1.x &&
+    mySelectRect.p1.y > userRect.p2.y &&
+    mySelectRect.p2.y < userRect.p1.y;
+
+  console.log(res);
+  isSelected.value = res;
+});
 
 onMounted(() => document.addEventListener("keypress", onKeyPress));
 onUnmounted(() => document.removeEventListener("keypress", onKeyPress));

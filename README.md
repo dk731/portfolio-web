@@ -1,4 +1,6 @@
-# LIVE VERSION IS AVAILABLE AT: [qwe.me](https://qwe.me)
+# WORK IN PROGRESS...
+
+# LIVE VERSION IS AVAILABLE AT: [qwe.me](https://qwe.me/)
 
 # portfolio-web
 

@@ -1,12 +1,25 @@
 <script setup lang="ts">
 import {
+  Win95Cursor,
   useDesktopState,
   type DesktopPoint,
   type DesktopSize,
 } from "@/stores/Win95DesktopState";
-import { ref, useSlots } from "vue";
+import { onMounted, onUnmounted, ref, useSlots } from "vue";
 
 import { v4 as uuid4 } from "uuid";
+
+enum ResizeState {
+  UpperLeft,
+  UpperMiddle,
+  UpperRight,
+  MiddleRight,
+  BottomRight,
+  BottomMiddle,
+  BottomLeft,
+  MiddleLeft,
+  None,
+}
 
 const props = defineProps<{
   icon: string;
@@ -21,28 +34,195 @@ const myId = uuid4();
 
 const myPosition = ref<DesktopPoint>({ ...props.initialPosition });
 const mySize = ref<DesktopSize>({ ...props.initialSize });
-const myZindex = ref<number>(0);
+const windowRef = ref(null as any);
+
+// Width of resize border
+const RESIZE_WIDTH = 4;
+const RESIZE_CORNER_SIZE = 22;
+
+const isResizing = ref<boolean>(false);
+var resizeState: ResizeState = ResizeState.None;
 
 function onMouseMove(e: MouseEvent) {
-  // e.stopPropagation();
+  if (!isResizing.value) {
+    const el = windowRef.value.getBoundingClientRect();
+
+    const relativePosition = {
+      x: e.clientX - el.left,
+      y: e.clientY - el.top,
+    };
+
+    const sideCheck = relativePosition.x < RESIZE_WIDTH;
+    const sideCheckInv = mySize.value.width - relativePosition.x < RESIZE_WIDTH;
+    const topBotCheck = relativePosition.y < RESIZE_WIDTH;
+    const topBotCheckInv =
+      mySize.value.height - relativePosition.y < RESIZE_WIDTH;
+
+    const cornerSideCheck = relativePosition.x < RESIZE_CORNER_SIZE;
+    const cornerSideCheckInv =
+      mySize.value.width - relativePosition.x < RESIZE_CORNER_SIZE;
+    const cornerTopBottmoCheck = relativePosition.y < RESIZE_CORNER_SIZE;
+    const cornerTopBottmoCheckInv =
+      mySize.value.height - relativePosition.y < RESIZE_CORNER_SIZE;
+
+    if (
+      (sideCheck || sideCheckInv) &&
+      !cornerTopBottmoCheck &&
+      !cornerTopBottmoCheckInv
+    ) {
+      desktopState.activeCursor = Win95Cursor.sideResize;
+      resizeState = sideCheck
+        ? ResizeState.MiddleLeft
+        : ResizeState.MiddleRight;
+    } else if (
+      (topBotCheck || topBotCheckInv) &&
+      !cornerSideCheck &&
+      !cornerSideCheckInv
+    ) {
+      desktopState.activeCursor = Win95Cursor.topBotResize;
+      resizeState = topBotCheck
+        ? ResizeState.UpperMiddle
+        : ResizeState.BottomMiddle;
+    } else if (
+      (cornerSideCheck && cornerTopBottmoCheck) ||
+      (cornerSideCheckInv && cornerTopBottmoCheckInv)
+    ) {
+      desktopState.activeCursor = Win95Cursor.cornerResizeNeg;
+      resizeState =
+        cornerSideCheck && cornerTopBottmoCheck
+          ? ResizeState.UpperLeft
+          : ResizeState.BottomRight;
+    } else if (
+      (cornerSideCheckInv && cornerTopBottmoCheck) ||
+      (cornerSideCheck && cornerTopBottmoCheckInv)
+    ) {
+      desktopState.activeCursor = Win95Cursor.cornerResizePos;
+      resizeState =
+        cornerSideCheckInv && cornerTopBottmoCheck
+          ? ResizeState.UpperRight
+          : ResizeState.BottomLeft;
+    } else {
+      desktopState.activeCursor = Win95Cursor.default;
+      resizeState = ResizeState.None;
+    }
+  }
 }
+function onMouseCornerOver(e: MouseEvent) {
+  const el = windowRef.value.getBoundingClientRect();
+
+  onMouseMove({
+    ...e,
+    clientX: el.left + mySize.value.width,
+    clientY: el.top + mySize.value.height,
+  });
+
+  e.stopPropagation();
+}
+function onWindowLeave(e: MouseEvent) {
+  desktopState.activeCursor = Win95Cursor.default;
+}
+
+var prevMousePos: DesktopPoint = { x: 0, y: 0 };
 function onMouseDown(e: MouseEvent) {
-  // e.stopPropagation();
+  if (resizeState != ResizeState.None) {
+    isResizing.value = true;
+    prevMousePos = { x: e.clientX, y: e.clientY };
+  }
+
+  e.stopPropagation();
 }
+
+function onGlobalMouseMove(e: MouseEvent) {
+  if (!isResizing.value) return;
+  const movement = {
+    x: e.clientX - prevMousePos.x,
+    y: e.clientY - prevMousePos.y,
+  };
+
+  const currentSize = mySize.value;
+  const currentPosition = myPosition.value;
+
+  const sizeDelta = { ...movement };
+  const positionDelta = { ...movement };
+
+  // Scale
+  if (
+    resizeState == ResizeState.UpperMiddle ||
+    resizeState == ResizeState.BottomMiddle
+  )
+    sizeDelta.x = 0;
+  if (
+    resizeState == ResizeState.MiddleRight ||
+    resizeState == ResizeState.MiddleLeft
+  )
+    sizeDelta.y = 0;
+  if (
+    resizeState == ResizeState.UpperLeft ||
+    resizeState == ResizeState.MiddleLeft ||
+    resizeState == ResizeState.BottomLeft
+  )
+    sizeDelta.x *= -1;
+  if (
+    resizeState == ResizeState.UpperLeft ||
+    resizeState == ResizeState.UpperMiddle ||
+    resizeState == ResizeState.UpperRight
+  )
+    sizeDelta.y *= -1;
+
+  // Position
+  if (
+    resizeState == ResizeState.UpperMiddle ||
+    resizeState == ResizeState.UpperRight ||
+    resizeState == ResizeState.MiddleRight ||
+    resizeState == ResizeState.BottomRight ||
+    resizeState == ResizeState.BottomMiddle
+  )
+    positionDelta.x = 0;
+  if (
+    resizeState == ResizeState.MiddleLeft ||
+    resizeState == ResizeState.MiddleRight ||
+    resizeState == ResizeState.BottomRight ||
+    resizeState == ResizeState.BottomMiddle ||
+    resizeState == ResizeState.BottomLeft
+  )
+    positionDelta.y = 0;
+
+  currentSize.width += sizeDelta.x;
+  currentSize.height += sizeDelta.y;
+
+  if (currentSize.width < 112) {
+    currentSize.width = 112;
+    positionDelta.x = 0;
+  }
+  if (currentSize.height < 65) {
+    currentSize.height = 65;
+    positionDelta.y = 0;
+  }
+
+  currentPosition.x += positionDelta.x;
+  currentPosition.y += positionDelta.y;
+
+  mySize.value.width = currentSize.width;
+  mySize.value.height = currentSize.height;
+
+  myPosition.value.x = currentPosition.x;
+  myPosition.value.y = currentPosition.y;
+
+  prevMousePos = { x: e.clientX, y: e.clientY };
+}
+
 function onMouseUp(e: MouseEvent) {
-  // e.stopPropagation();
+  isResizing.value = false;
 }
 
-function onBorderEnter(e: MouseEvent) {
-  console.log((e.target as any).classList);
-}
-function onBorderLeave(e: MouseEvent) {}
-
-desktopState.$subscribe(() => {
-  myZindex.value = desktopState.desktop.oppenedWindows.indexOf(myId) * 10 + 10;
+onMounted(() => {
+  document.addEventListener("mouseup", onMouseUp);
+  document.addEventListener("mousemove", onGlobalMouseMove);
 });
-
-desktopState.desktop.oppenedWindows.push(myId);
+onUnmounted(() => {
+  document.removeEventListener("mouseup", onMouseUp);
+  document.removeEventListener("mousemove", onGlobalMouseMove);
+});
 </script>
 
 <template>
@@ -53,11 +233,12 @@ desktopState.desktop.oppenedWindows.push(myId);
       top: `${myPosition.y}px`,
       width: `${mySize.width}px`,
       height: `${mySize.height}px`,
-      zIndex: myZindex,
+      zIndex: desktopState.desktop.oppenedWindows.indexOf(myId) * 10 + 10,
     }"
     @mousemove="onMouseMove"
     @mousedown="onMouseDown"
-    @mouseup="onMouseUp"
+    @mouseleave="onWindowLeave"
+    ref="windowRef"
   >
     <div class="window-upper-bar">
       <div
@@ -85,35 +266,17 @@ desktopState.desktop.oppenedWindows.push(myId);
             flexGrow: slots['bottom-bar'] == undefined ? 0 : 1,
           }"
         >
-          <div class="widnow-resize-corner"></div>
+          <div
+            class="widnow-resize-corner"
+            @mousemove="onMouseCornerOver"
+            :style="{
+              zIndex:
+                desktopState.desktop.oppenedWindows.indexOf(myId) * 10 + 11,
+            }"
+          ></div>
         </div>
       </div>
     </div>
-
-    <div
-      class="window-resize-border side left"
-      :style="{ zIndex: myZindex + 1 }"
-      @mouseenter="onBorderEnter"
-      @mouseleave="onBorderLeave"
-    ></div>
-    <div
-      class="window-resize-border side right"
-      :style="{ zIndex: myZindex + 1 }"
-      @mouseenter="onBorderEnter"
-      @mouseleave="onBorderLeave"
-    ></div>
-    <div
-      class="window-resize-border bottop top"
-      :style="{ zIndex: myZindex + 1 }"
-      @mouseenter="onBorderEnter"
-      @mouseleave="onBorderLeave"
-    ></div>
-    <div
-      class="window-resize-border bottop bottom"
-      :style="{ zIndex: myZindex + 1 }"
-      @mouseenter="onBorderEnter"
-      @mouseleave="onBorderLeave"
-    ></div>
   </div>
 </template>
 
@@ -233,43 +396,5 @@ desktopState.desktop.oppenedWindows.push(myId);
   height: 12px;
 
   background-image: url(images/win95/corner-scale.png);
-}
-
-.window-resize-border {
-  position: absolute;
-  background-color: purple;
-
-  pointer-events: all;
-  z-index: 1000;
-}
-
-.window-resize-border.side {
-  top: 0px;
-
-  height: 100%;
-  width: 4px;
-}
-
-.window-resize-border.bottop {
-  left: 0px;
-
-  height: 4px;
-  width: 100%;
-}
-
-.window-resize-border.side.left {
-  left: 0px;
-}
-
-.window-resize-border.side.right {
-  right: 0px;
-}
-
-.window-resize-border.bottop.top {
-  top: 0px;
-}
-
-.window-resize-border.bottop.bottom {
-  bottom: 0px;
 }
 </style>

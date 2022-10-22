@@ -10,6 +10,19 @@ type TaskMeta = {
 export type DesktopPoint = { x: number; y: number };
 export type DesktopSize = { width: number; height: number };
 
+export enum Win95Cursor {
+  default = "/cursors/arrow.cur",
+  sideResize = "/cursors/Cursor_8.cur",
+  topBotResize = "/cursors/Cursor_9.cur",
+  cornerResizePos = "/cursors/Cursor_7.cur",
+  cornerResizeNeg = "/cursors/Cursor_6.cur",
+}
+
+export enum Win95Font {
+  default = "win95-non-bold",
+  bold = "win95-bold",
+}
+
 type DesktopState = {
   taskbar: { activeApp?: TaskMeta; taskbarApps: TaskMeta[] };
   desktop: {
@@ -21,6 +34,7 @@ type DesktopState = {
     moveOffset: DesktopPoint;
     oppenedWindows: string[];
   };
+  activeCursor: Win95Cursor;
 };
 
 export const useDesktopState = defineStore("desktop-store", {
@@ -37,5 +51,6 @@ export const useDesktopState = defineStore("desktop-store", {
         moveOffset: { x: 0, y: 0 },
         oppenedWindows: [],
       },
+      activeCursor: Win95Cursor.default,
     } as DesktopState),
 });

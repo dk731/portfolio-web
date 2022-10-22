@@ -2,7 +2,11 @@
 import { onMounted, onUnmounted, ref, type VNode, type VNodeRef } from "vue";
 import Win95AppIcon from "./base/Win95DesktopIcon.vue";
 
-import { useDesktopState } from "@/stores/Win95DesktopState";
+import {
+  Win95Cursor,
+  Win95Font,
+  useDesktopState,
+} from "@/stores/Win95DesktopState";
 import Win95StartApp from "./applications/Win95StartApp.vue";
 import Win95Taskbar from "./base/Win95Taskbar.vue";
 import Win95DesktopUserSelect from "./base/Win95DesktopUserSelect.vue";
@@ -53,7 +57,10 @@ function onTestOpen() {
 </script>
 
 <template>
-  <div class="win95-holder">
+  <div
+    class="win95-holder"
+    :style="{ cursor: `url(${desktopState.activeCursor}), auto` }"
+  >
     <div
       class="win95-desktop-holder"
       @mousedown="onMouseDown"
@@ -120,11 +127,11 @@ function onTestOpen() {
   background-color: #57a8a8;
 
   font-family: win95-non-bold;
-  cursor: url(/cursors/arrow.cur), auto;
   font-smooth: never;
   -webkit-font-smoothing: none;
 
   user-select: none;
+  overflow: hidden;
 }
 
 .win95-desktop-holder {

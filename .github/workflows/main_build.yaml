@@ -55,3 +55,30 @@ jobs:
           asset_path: ./dist/artifact.zip
           asset_name: artifact.zip
           asset_content_type: application/zip
+
+      - name: Prepearing For Production Upload and Launch
+        run: |
+          cd ./dist
+          echo "Check"
+          ls -la
+
+      - name: Uploading To Production Server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.PRODUCTION_USER }}
+          port: 22
+          key: ${{ secrets.PRODUCTION_PPK }}
+          source: ./dist/artifact.zip
+          target: ~/
+          strip_components: 2
+          overwrite: true
+
+      - name: Unpacking and installing uploaded release
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.PRODUCTION_USER }}
+          port: 22
+          key: ${{ secrets.PRODUCTION_PPK }}
+          script: ~/start_server.sh

@@ -106,12 +106,12 @@ function onTestOpen() {
 <style>
 @font-face {
   font-family: win95-non-bold;
-  src: url("fonts/win95/MS Sans Serif 8pt.ttf");
+  src: url("/fonts/win95/MS Sans Serif 8pt.ttf");
 }
 
 @font-face {
   font-family: win95-bold;
-  src: url("fonts/win95/MS Sans Serif 8pt bold.ttf");
+  src: url("/fonts/win95/MS Sans Serif 8pt bold.ttf");
 }
 
 .win95-holder {

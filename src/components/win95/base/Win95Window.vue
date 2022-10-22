@@ -422,6 +422,6 @@ onUnmounted(() => {
   width: 12px;
   height: 12px;
 
-  background-image: url(images/win95/corner-scale.png);
+  background-image: url(/images/win95/corner-scale.png);
 }
 </style>

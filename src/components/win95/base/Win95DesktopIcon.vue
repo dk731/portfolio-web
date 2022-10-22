@@ -2,6 +2,7 @@
 import { onMounted, onUnmounted, ref } from "vue";
 
 import { useDesktopState, type DesktopPoint } from "@/stores/Win95DesktopState";
+import { useDesktopSelectedIcons } from "@/stores/Win95DesktopSelectedState";
 
 import moment from "moment";
 import { v4 as uuid4 } from "uuid";
@@ -13,8 +14,7 @@ const props = defineProps<{
   onOpenClb: () => void;
 }>();
 
-const isSelected = ref<boolean>(false);
-
+const desktopSelectedIcons = useDesktopSelectedIcons();
 const desktopState = useDesktopState();
 const myId = uuid4();
 
@@ -23,9 +23,27 @@ const myPosition = ref<DesktopPoint>({ ...props.initialPosition });
 // Selection trigger rect size
 const selectRect = { width: 30, height: 25 };
 
+var hasDragged = false;
+
+function onMouseUp(e: MouseEvent) {
+  console.log(hasDragged);
+  if (!hasDragged && !e.ctrlKey) {
+    desktopSelectedIcons.selectedIcons = [myId];
+  }
+}
+
 var isDoubleClick = false;
-function onMouseClick(e: MouseEvent) {
+function onMouseDown(e: MouseEvent) {
+  hasDragged = false;
+
+  if (!e.ctrlKey && !desktopSelectedIcons.includes(myId))
+    desktopSelectedIcons.selectedIcons = [myId];
+  else desktopSelectedIcons.insert(myId);
+
+  // Update current icon global state
   desktopState.desktop.focusedApp = myId;
+
+  // Handle open logic
   if (isDoubleClick) {
     isDoubleClick = false;
     runOpenClb();
@@ -33,10 +51,11 @@ function onMouseClick(e: MouseEvent) {
 
   isDoubleClick = true;
   setTimeout(() => (isDoubleClick = false), 300);
-}
 
-function onMouseDown(e: MouseEvent) {
-  console.log("Mouse event: ", e.target);
+  desktopState.desktop.selectMoving = true;
+
+  // Stop propagation to prevent events form desktop
+  e.stopPropagation();
 }
 
 const MIN_OPEN_DELAY = 500;
@@ -69,13 +88,25 @@ desktopState.$subscribe((mutation, state) => {
       ...selectRect,
     };
 
-    isSelected.value =
+    if (
       userCompare.x < myCompare.x + myCompare.width &&
       userCompare.x + userCompare.width > myCompare.x &&
       userCompare.y < myCompare.y + myCompare.height &&
-      userCompare.height + userCompare.y > myCompare.y;
-  } else {
-    // console.log(desktopState.desktop.selectOffset);
+      userCompare.height + userCompare.y > myCompare.y
+    )
+      desktopSelectedIcons.insert(myId);
+    else desktopSelectedIcons.remove(myId);
+  } else if (
+    desktopState.desktop.selectMoving &&
+    desktopSelectedIcons.includes(myId)
+  ) {
+    // Move current icon
+    hasDragged =
+      hasDragged ||
+      desktopState.desktop.moveOffset.x != 0 ||
+      desktopState.desktop.moveOffset.y != 0;
+    myPosition.value.x += desktopState.desktop.moveOffset.x;
+    myPosition.value.y += desktopState.desktop.moveOffset.y;
   }
 });
 
@@ -86,18 +117,19 @@ onUnmounted(() => document.removeEventListener("keypress", onKeyPress));
 <template>
   <div
     class="win95-desktop-icon-holder"
-    :style="{ left: `${myPosition.x}px`, top: `${myPosition.y}px` }"
-    @click="onMouseClick"
+    :style="{
+      left: `${myPosition.x}px`,
+      top: `${myPosition.y}px`,
+    }"
     @mousedown="onMouseDown"
-    @mouseup=""
-    @mouseleave=""
+    @mouseup="onMouseUp"
   >
     <div
       class="desktop-icon-image"
       :style="{ backgroundImage: `url(${props.icon})` }"
     >
       <div
-        v-if="isSelected"
+        v-if="desktopSelectedIcons.includes(myId)"
         :style="{
           WebkitMaskImage: `url(${props.icon})`,
           maskImage: `url(${props.icon})`,
@@ -105,7 +137,11 @@ onUnmounted(() => document.removeEventListener("keypress", onKeyPress));
         class="desktop-icon-overlay"
       ></div>
     </div>
-    <div :class="`desktop-icon-title ${isSelected ? 'selected' : ''}`">
+    <div
+      :class="`desktop-icon-title ${
+        desktopSelectedIcons.includes(myId) ? 'selected' : ''
+      }`"
+    >
       {{ props.title }}
       <div
         v-if="desktopState.desktop.focusedApp == myId"
@@ -124,6 +160,11 @@ onUnmounted(() => document.removeEventListener("keypress", onKeyPress));
   align-items: center;
 
   box-sizing: border-box;
+}
+
+/* Remove pointer events from all children */
+.win95-desktop-icon-holder * {
+  pointer-events: none;
 }
 
 .desktop-icon-image {

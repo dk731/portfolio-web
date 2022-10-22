@@ -17,9 +17,13 @@ function onMouseMove(e: MouseEvent) {
       x: e.clientX - el.left,
       y: e.clientY - el.top,
     };
+
+  if (desktopState.desktop.selectMoving)
+    desktopState.desktop.moveOffset = { x: e.movementX, y: e.movementY };
 }
 
 function onMouseDown(e: MouseEvent) {
+  console.log("Desktop mouse down");
   const el = desktopRef.value.getBoundingClientRect();
 
   const newPosition = {
@@ -34,6 +38,9 @@ function onMouseDown(e: MouseEvent) {
 
 function onMouseUp(e: MouseEvent) {
   desktopState.desktop.selectActive = false;
+
+  desktopState.desktop.selectMoving = false;
+  desktopState.desktop.moveOffset = { x: 0, y: 0 };
 }
 
 onMounted(() => document.addEventListener("mouseup", onMouseUp));
@@ -93,7 +100,7 @@ function onTestOpen() {
 
 .win95-holder {
   position: relative;
-  width: 800px;
+  width: 800px1;
   height: 600px;
   /* width: 100%;
   height: 100%; */

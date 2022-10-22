@@ -39,7 +39,7 @@ setInterval(() => (currentTime.value = moment()), 1000);
             backgroundImage: `url(images/win95/loudspeaker_rays-1.png)`,
           }"
         />
-        <div class="clock-icon">{{ currentTime.format("hh:mm A") }}</div>
+        <div class="clock-icon">{{ currentTime.format("h:mm A") }}</div>
       </div>
     </div>
   </div>
@@ -150,7 +150,7 @@ setInterval(() => (currentTime.value = moment()), 1000);
   height: 100%;
 
   text-align: center;
-  font-size: 10px;
+  font-size: 11px;
   line-height: 20px;
   letter-spacing: 1px;
 

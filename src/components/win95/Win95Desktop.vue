@@ -87,7 +87,7 @@ function onTestOpen() {
         :initialPosition="{ x: 100, y: 100 }"
         :initialSize="{ width: 600, height: 400 }"
       >
-        <template #bottom-bar><div>123</div></template>
+        <!-- <template #bottom-bar><div>123</div></template> -->
       </Win95Window>
       <Win95DesktopUserSelect />
     </div>

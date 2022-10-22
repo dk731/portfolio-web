@@ -19,10 +19,9 @@ const slots = useSlots();
 const desktopState = useDesktopState();
 const myId = uuid4();
 
-desktopState.desktop.oppenedWindows.push(myId);
-
 const myPosition = ref<DesktopPoint>({ ...props.initialPosition });
 const mySize = ref<DesktopSize>({ ...props.initialSize });
+const myZindex = ref<number>(0);
 
 function onMouseMove(e: MouseEvent) {
   // e.stopPropagation();
@@ -33,6 +32,17 @@ function onMouseDown(e: MouseEvent) {
 function onMouseUp(e: MouseEvent) {
   // e.stopPropagation();
 }
+
+function onBorderEnter(e: MouseEvent) {
+  console.log((e.target as any).classList);
+}
+function onBorderLeave(e: MouseEvent) {}
+
+desktopState.$subscribe(() => {
+  myZindex.value = desktopState.desktop.oppenedWindows.indexOf(myId) * 10 + 10;
+});
+
+desktopState.desktop.oppenedWindows.push(myId);
 </script>
 
 <template>
@@ -43,7 +53,7 @@ function onMouseUp(e: MouseEvent) {
       top: `${myPosition.y}px`,
       width: `${mySize.width}px`,
       height: `${mySize.height}px`,
-      zIndex: desktopState.desktop.oppenedWindows.indexOf(myId),
+      zIndex: myZindex,
     }"
     @mousemove="onMouseMove"
     @mousedown="onMouseDown"
@@ -68,9 +78,42 @@ function onMouseUp(e: MouseEvent) {
       <div class="window-bottom-bar">
         <slot name="bottom-bar"></slot>
 
-        <div class="widnow-resize-corner"></div>
+        <div
+          class="window-resize-corner-holder"
+          :style="{
+            width: slots['bottom-bar'] == undefined ? '100%' : 'auto',
+            flexGrow: slots['bottom-bar'] == undefined ? 0 : 1,
+          }"
+        >
+          <div class="widnow-resize-corner"></div>
+        </div>
       </div>
     </div>
+
+    <div
+      class="window-resize-border side left"
+      :style="{ zIndex: myZindex + 1 }"
+      @mouseenter="onBorderEnter"
+      @mouseleave="onBorderLeave"
+    ></div>
+    <div
+      class="window-resize-border side right"
+      :style="{ zIndex: myZindex + 1 }"
+      @mouseenter="onBorderEnter"
+      @mouseleave="onBorderLeave"
+    ></div>
+    <div
+      class="window-resize-border bottop top"
+      :style="{ zIndex: myZindex + 1 }"
+      @mouseenter="onBorderEnter"
+      @mouseleave="onBorderLeave"
+    ></div>
+    <div
+      class="window-resize-border bottop bottom"
+      :style="{ zIndex: myZindex + 1 }"
+      @mouseenter="onBorderEnter"
+      @mouseleave="onBorderLeave"
+    ></div>
   </div>
 </template>
 
@@ -174,18 +217,59 @@ function onMouseUp(e: MouseEvent) {
 
   background: aqua;
 }
+.window-resize-corner-holder {
+  position: relative;
 
-.bottom-content-holder {
-  width: 100%;
-
-  display: flex;
-  flex-direction: row;
-  align-items: center;
+  height: 100%;
 }
 
 .widnow-resize-corner {
+  position: absolute;
+
+  right: 0px;
+  bottom: 0px;
+
   width: 12px;
+  height: 12px;
+
+  background-image: url(images/win95/corner-scale.png);
+}
+
+.window-resize-border {
+  position: absolute;
+  background-color: purple;
+
+  pointer-events: all;
+  z-index: 1000;
+}
+
+.window-resize-border.side {
+  top: 0px;
+
   height: 100%;
-  background-color: red;
+  width: 4px;
+}
+
+.window-resize-border.bottop {
+  left: 0px;
+
+  height: 4px;
+  width: 100%;
+}
+
+.window-resize-border.side.left {
+  left: 0px;
+}
+
+.window-resize-border.side.right {
+  right: 0px;
+}
+
+.window-resize-border.bottop.top {
+  top: 0px;
+}
+
+.window-resize-border.bottop.bottom {
+  bottom: 0px;
 }
 </style>

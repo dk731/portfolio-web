@@ -41,10 +41,11 @@ const RESIZE_WIDTH = 4;
 const RESIZE_CORNER_SIZE = 22;
 
 const isResizing = ref<boolean>(false);
+const isDragged = ref<boolean>(false);
 var resizeState: ResizeState = ResizeState.None;
 
 function onMouseMove(e: MouseEvent) {
-  if (!isResizing.value) {
+  if (!isResizing.value && !isDragged.value) {
     const el = windowRef.value.getBoundingClientRect();
 
     const relativePosition = {
@@ -84,8 +85,10 @@ function onMouseMove(e: MouseEvent) {
         ? ResizeState.UpperMiddle
         : ResizeState.BottomMiddle;
     } else if (
-      (cornerSideCheck && cornerTopBottmoCheck) ||
-      (cornerSideCheckInv && cornerTopBottmoCheckInv)
+      (sideCheck && cornerTopBottmoCheck) ||
+      (cornerSideCheck && topBotCheck) ||
+      (sideCheckInv && cornerTopBottmoCheckInv) ||
+      (cornerSideCheckInv && topBotCheckInv)
     ) {
       desktopState.activeCursor = Win95Cursor.cornerResizeNeg;
       resizeState =
@@ -93,8 +96,10 @@ function onMouseMove(e: MouseEvent) {
           ? ResizeState.UpperLeft
           : ResizeState.BottomRight;
     } else if (
-      (cornerSideCheckInv && cornerTopBottmoCheck) ||
-      (cornerSideCheck && cornerTopBottmoCheckInv)
+      (sideCheckInv && cornerTopBottmoCheck) ||
+      (cornerSideCheckInv && topBotCheck) ||
+      (sideCheck && cornerTopBottmoCheckInv) ||
+      (cornerSideCheck && topBotCheckInv)
     ) {
       desktopState.activeCursor = Win95Cursor.cornerResizePos;
       resizeState =
@@ -107,6 +112,7 @@ function onMouseMove(e: MouseEvent) {
     }
   }
 }
+
 function onMouseCornerOver(e: MouseEvent) {
   const el = windowRef.value.getBoundingClientRect();
 
@@ -126,14 +132,20 @@ var prevMousePos: DesktopPoint = { x: 0, y: 0 };
 function onMouseDown(e: MouseEvent) {
   if (resizeState != ResizeState.None) {
     isResizing.value = true;
+    isDragged.value = false;
     prevMousePos = { x: e.clientX, y: e.clientY };
   }
 
   e.stopPropagation();
 }
 
-function onGlobalMouseMove(e: MouseEvent) {
-  if (!isResizing.value) return;
+function onDraggableMouseDown() {
+  console.log("Starting drag");
+  isResizing.value = false;
+  isDragged.value = true;
+}
+
+function resize(e: MouseEvent) {
   const movement = {
     x: e.clientX - prevMousePos.x,
     y: e.clientY - prevMousePos.y,
@@ -211,8 +223,21 @@ function onGlobalMouseMove(e: MouseEvent) {
   prevMousePos = { x: e.clientX, y: e.clientY };
 }
 
+function move(e: MouseEvent) {
+  const currentPosition = myPosition.value;
+
+  currentPosition.x += e.movementX;
+  currentPosition.y += e.movementY;
+}
+
 function onMouseUp(e: MouseEvent) {
   isResizing.value = false;
+  isDragged.value = false;
+}
+
+function onGlobalMouseMove(e: MouseEvent) {
+  if (isResizing.value) resize(e);
+  else if (isDragged.value) move(e);
 }
 
 onMounted(() => {
@@ -240,7 +265,7 @@ onUnmounted(() => {
     @mouseleave="onWindowLeave"
     ref="windowRef"
   >
-    <div class="window-upper-bar">
+    <div class="window-upper-bar" @mousedown="onDraggableMouseDown">
       <div
         class="window-icon"
         :style="{ backgroundImage: `url(${props.icon})` }"
@@ -294,7 +319,7 @@ onUnmounted(() => {
     inset 1px 1px 0px 1px #ffffff;
 }
 
-.win95-window-holder::after {
+.win95-window-holder::before {
   content: "";
   position: absolute;
   left: 0px;
@@ -309,6 +334,7 @@ onUnmounted(() => {
 }
 
 .window-upper-bar {
+  position: relative;
   width: 100%;
   height: 18px;
 
@@ -347,6 +373,7 @@ onUnmounted(() => {
 }
 
 .window-content-holder {
+  position: relative;
   width: 100%;
   flex-grow: 1;
 

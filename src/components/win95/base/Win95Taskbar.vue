@@ -16,7 +16,7 @@ setInterval(() => (currentTime.value = moment()), 1000);
       <div class="taskbar-icons-holder">
         <div
           v-for="app in desktopState.taskbar.taskbarApps"
-          :class="`taskbar-app ${
+          :class="`taskbar-app win95-button ${
             app.id == desktopState.taskbar.activeApp?.id ? 'active' : ''
           }`"
           @click="app.onOpenClb"
@@ -126,18 +126,10 @@ setInterval(() => (currentTime.value = moment()), 1000);
 
   align-items: center;
   padding: 3px;
-
-  box-shadow: inset 1px 1px #ffffff, 0.5px 0.5px 0 0.5px #000000,
-    1px 1px #87888f, inset -1px -1px #85898d;
 }
 
 .taskbar-app:first-child {
   padding-right: 5px;
-}
-
-.taskbar-app.active {
-  box-shadow: 0.5px 0.5px 0 0.5px white, inset 1px 1px black,
-    inset -1px -1px #c0c7c8, inset 2px 2px #85898d;
 }
 
 .sound-icon {

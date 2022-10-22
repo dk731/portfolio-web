@@ -8,6 +8,7 @@ type TaskMeta = {
 };
 
 export type DesktopPoint = { x: number; y: number };
+export type DesktopSize = { width: number; height: number };
 
 type DesktopState = {
   taskbar: { activeApp?: TaskMeta; taskbarApps: TaskMeta[] };
@@ -18,6 +19,7 @@ type DesktopState = {
     focusedApp?: string;
     selectMoving: boolean;
     moveOffset: DesktopPoint;
+    oppenedWindows: string[];
   };
 };
 
@@ -33,6 +35,7 @@ export const useDesktopState = defineStore("desktop-store", {
         selectWidth: 0,
         selectMoving: false,
         moveOffset: { x: 0, y: 0 },
+        oppenedWindows: [],
       },
     } as DesktopState),
 });

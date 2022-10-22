@@ -6,6 +6,7 @@ import { useDesktopState } from "@/stores/Win95DesktopState";
 import Win95StartApp from "./applications/Win95StartApp.vue";
 import Win95Taskbar from "./base/Win95Taskbar.vue";
 import Win95DesktopUserSelect from "./base/Win95DesktopUserSelect.vue";
+import Win95Window from "./base/Win95Window.vue";
 
 const desktopState = useDesktopState();
 const desktopRef = ref(null as any);
@@ -54,7 +55,7 @@ function onTestOpen() {
 <template>
   <div class="win95-holder">
     <div
-      class="desktop-holder"
+      class="win95-desktop-holder"
       @mousedown="onMouseDown"
       @mousemove="onMouseMove"
       ref="desktopRef"
@@ -80,6 +81,14 @@ function onTestOpen() {
         :initialPosition="{ x: 100, y: 100 }"
       ></Win95AppIcon>
 
+      <Win95Window
+        :icon="`images/win95/computer_explorer-2.png`"
+        :title="`Recycle Bin`"
+        :initialPosition="{ x: 100, y: 100 }"
+        :initialSize="{ width: 600, height: 400 }"
+      >
+        <template #bottom-bar><div>123</div></template>
+      </Win95Window>
       <Win95DesktopUserSelect />
     </div>
 
@@ -87,7 +96,7 @@ function onTestOpen() {
   </div>
 </template>
 
-<style scoped>
+<style>
 @font-face {
   font-family: win95-non-bold;
   src: url("fonts/win95/MS Sans Serif 8pt.ttf");
@@ -118,10 +127,24 @@ function onTestOpen() {
   user-select: none;
 }
 
-.desktop-holder {
+.win95-desktop-holder {
   position: relative;
 
   width: 100%;
   height: 100%;
+}
+
+.win95-button {
+  box-shadow: inset 1px 1px #ffffff, 0.5px 0.5px 0 0.5px #000000,
+    1px 1px #87888f, inset -1px -1px #85898d;
+}
+
+.win95-button.active {
+  box-shadow: 0.5px 0.5px 0 0.5px white, inset 1px 1px black,
+    inset -1px -1px #c0c7c8, inset 2px 2px #85898d;
+}
+
+.v-spacer {
+  flex-grow: 1;
 }
 </style>

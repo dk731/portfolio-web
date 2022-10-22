@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from "vue";
 
-import { useDesktopState, type DesktopPoint } from "@/stores/Win95DesktopState";
+import {
+  useDesktopState,
+  type DesktopPoint,
+  type DesktopSize,
+} from "@/stores/Win95DesktopState";
 import { useDesktopSelectedIcons } from "@/stores/Win95DesktopSelectedState";
 
 import moment from "moment";
@@ -21,7 +25,7 @@ const myId = uuid4();
 // Top, left point
 const myPosition = ref<DesktopPoint>({ ...props.initialPosition });
 // Selection trigger rect size
-const selectRect = { width: 30, height: 25 };
+const selectRect: DesktopSize = { width: 30, height: 25 };
 
 var hasDragged = false;
 

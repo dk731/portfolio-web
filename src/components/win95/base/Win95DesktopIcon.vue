@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from "vue";
 
-import { useDesktopState } from "@/stores/Win95DesktopState";
+import { useDesktopState, type DesktopPoint } from "@/stores/Win95DesktopState";
 
 import moment from "moment";
 import { v4 as uuid4 } from "uuid";
@@ -9,14 +9,19 @@ import { v4 as uuid4 } from "uuid";
 const props = defineProps<{
   icon: string;
   title: string;
+  initialPosition: DesktopPoint;
   onOpenClb: () => void;
 }>();
 
-const isSelected = ref<boolean>(true);
+const isSelected = ref<boolean>(false);
 
 const desktopState = useDesktopState();
 const myId = uuid4();
-const mySelectRect = { p1: { x: 90, y: 90 }, p2: { x: 110, y: 110 } };
+
+// Top, left point
+const myPosition = ref<DesktopPoint>({ ...props.initialPosition });
+// Selection trigger rect size
+const selectRect = { width: 30, height: 25 };
 
 var isDoubleClick = false;
 function onMouseClick(e: MouseEvent) {
@@ -28,6 +33,10 @@ function onMouseClick(e: MouseEvent) {
 
   isDoubleClick = true;
   setTimeout(() => (isDoubleClick = false), 300);
+}
+
+function onMouseDown(e: MouseEvent) {
+  console.log("Mouse event: ", e.target);
 }
 
 const MIN_OPEN_DELAY = 500;
@@ -44,20 +53,30 @@ function onKeyPress(e: KeyboardEvent) {
 }
 
 desktopState.$subscribe((mutation, state) => {
-  // Skip all updates if desktop user select is not active
-  if (!desktopState.desktop.selectActive) return;
+  if (desktopState.desktop.selectActive) {
+    const userRect = desktopState.desktop.selectRect;
 
-  const userRect = desktopState.desktop.selectRect;
-  console.log(userRect);
+    const userCompare = {
+      x: Math.min(userRect.p1.x, userRect.p2.x),
+      y: Math.min(userRect.p1.y, userRect.p2.y),
+      width: Math.abs(userRect.p1.x - userRect.p2.x),
+      height: Math.abs(userRect.p1.y - userRect.p2.y),
+    };
 
-  const res =
-    mySelectRect.p1.x < userRect.p2.x &&
-    mySelectRect.p2.x > userRect.p1.x &&
-    mySelectRect.p1.y > userRect.p2.y &&
-    mySelectRect.p2.y < userRect.p1.y;
+    const myCompare = {
+      x: myPosition.value.x + 16,
+      y: myPosition.value.y + 5,
+      ...selectRect,
+    };
 
-  console.log(res);
-  isSelected.value = res;
+    isSelected.value =
+      userCompare.x < myCompare.x + myCompare.width &&
+      userCompare.x + userCompare.width > myCompare.x &&
+      userCompare.y < myCompare.y + myCompare.height &&
+      userCompare.height + userCompare.y > myCompare.y;
+  } else {
+    // console.log(desktopState.desktop.selectOffset);
+  }
 });
 
 onMounted(() => document.addEventListener("keypress", onKeyPress));
@@ -65,7 +84,14 @@ onUnmounted(() => document.removeEventListener("keypress", onKeyPress));
 </script>
 
 <template>
-  <div class="win95-desktop-icon-holder" @click="onMouseClick">
+  <div
+    class="win95-desktop-icon-holder"
+    :style="{ left: `${myPosition.x}px`, top: `${myPosition.y}px` }"
+    @click="onMouseClick"
+    @mousedown="onMouseDown"
+    @mouseup=""
+    @mouseleave=""
+  >
     <div
       class="desktop-icon-image"
       :style="{ backgroundImage: `url(${props.icon})` }"
@@ -98,9 +124,6 @@ onUnmounted(() => document.removeEventListener("keypress", onKeyPress));
   align-items: center;
 
   box-sizing: border-box;
-
-  top: 100px;
-  left: 100px;
 }
 
 .desktop-icon-image {

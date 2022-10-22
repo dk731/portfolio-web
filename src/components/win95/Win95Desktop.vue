@@ -58,6 +58,19 @@ function onTestOpen() {
         :icon="`images/win95/computer_explorer-4.png`"
         :title="`About Me`"
         :onOpenClb="onTestOpen"
+        :initialPosition="{ x: 50, y: 50 }"
+      ></Win95AppIcon>
+      <Win95AppIcon
+        :icon="`images/win95/computer_explorer-3.png`"
+        :title="`AONANSF`"
+        :onOpenClb="onTestOpen"
+        :initialPosition="{ x: 150, y: 150 }"
+      ></Win95AppIcon>
+      <Win95AppIcon
+        :icon="`images/win95/computer_explorer-2.png`"
+        :title="`QWEQWE`"
+        :onOpenClb="onTestOpen"
+        :initialPosition="{ x: 100, y: 100 }"
       ></Win95AppIcon>
 
       <Win95DesktopUserSelect />

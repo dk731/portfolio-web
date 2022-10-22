@@ -16,6 +16,8 @@ type DesktopState = {
     selectRect: { p1: DesktopPoint; p2: DesktopPoint };
     selectWidth: number; // Number of border layers for select box
     focusedApp?: string;
+    selectMoving: boolean;
+    selectOffset: DesktopPoint;
   };
 };
 
@@ -29,6 +31,8 @@ export const useDesktopState = defineStore("desktop-store", {
         selectActive: false,
         selectRect: { p1: { x: 0, y: 0 }, p2: { x: 0, y: 0 } },
         selectWidth: 0,
+        selectMoving: false,
+        selectOffset: { x: 0, y: 0 },
       },
     } as DesktopState),
 });

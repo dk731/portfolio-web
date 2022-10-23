@@ -33,6 +33,7 @@ type DesktopState = {
     selectMoving: boolean;
     moveOffset: DesktopPoint;
     oppenedWindows: string[];
+    size: DesktopSize;
   };
   activeCursor: Win95Cursor;
 };
@@ -50,6 +51,7 @@ export const useDesktopState = defineStore("desktop-store", {
         selectMoving: false,
         moveOffset: { x: 0, y: 0 },
         oppenedWindows: [],
+        size: { width: 0, height: 0 },
       },
       activeCursor: Win95Cursor.default,
     } as DesktopState),

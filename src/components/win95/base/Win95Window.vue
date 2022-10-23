@@ -26,6 +26,9 @@ const props = defineProps<{
   title: string;
   initialPosition: DesktopPoint;
   initialSize: DesktopSize;
+  onCloseClb?: () => void;
+  onMinimizeClb?: () => void;
+  onMaximizeClb?: () => void;
 }>();
 
 const slots = useSlots();
@@ -40,12 +43,13 @@ const windowRef = ref(null as any);
 const RESIZE_WIDTH = 4;
 const RESIZE_CORNER_SIZE = 22;
 
+const isMaximized = ref<boolean>(false);
 const isResizing = ref<boolean>(false);
 const isDragged = ref<boolean>(false);
 var resizeState: ResizeState = ResizeState.None;
 
 function onMouseMove(e: MouseEvent) {
-  if (!isResizing.value && !isDragged.value) {
+  if (!isResizing.value && !isDragged.value && !isMaximized.value) {
     const el = windowRef.value.getBoundingClientRect();
 
     const relativePosition = {
@@ -224,6 +228,8 @@ function resize(e: MouseEvent) {
 }
 
 function move(e: MouseEvent) {
+  if (isMaximized.value) return;
+
   const currentPosition = myPosition.value;
 
   currentPosition.x += e.movementX;
@@ -233,6 +239,53 @@ function move(e: MouseEvent) {
 function onMouseUp(e: MouseEvent) {
   isResizing.value = false;
   isDragged.value = false;
+}
+
+var beforeMaximizeState = {
+  position: { ...myPosition.value },
+  size: { ...mySize.value },
+};
+
+function onMaximizeButton(e: MouseEvent) {
+  e.stopPropagation();
+
+  if (!isMaximized.value) {
+    isMaximized.value = true;
+
+    beforeMaximizeState = {
+      position: { ...myPosition.value },
+      size: { ...mySize.value },
+    };
+
+    myPosition.value = { x: 0, y: 0 };
+    mySize.value = {
+      width: desktopState.desktop.size.width + 1,
+      height: desktopState.desktop.size.height + 1,
+    };
+  } else {
+    isMaximized.value = false;
+
+    myPosition.value = beforeMaximizeState.position;
+    mySize.value = beforeMaximizeState.size;
+  }
+
+  if (props.onMaximizeClb) props.onMaximizeClb();
+}
+
+function onMinimizeButton(e: MouseEvent) {
+  e.stopPropagation();
+
+  //
+
+  if (props.onMinimizeClb) return props.onMinimizeClb();
+}
+
+function onCloseButton(e: MouseEvent) {
+  e.stopPropagation();
+
+  //
+
+  if (props.onCloseClb) return props.onCloseClb();
 }
 
 function onGlobalMouseMove(e: MouseEvent) {
@@ -247,6 +300,15 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener("mouseup", onMouseUp);
   document.removeEventListener("mousemove", onGlobalMouseMove);
+});
+
+desktopState.$subscribe(() => {
+  if (!isMaximized.value) return;
+
+  mySize.value = {
+    width: desktopState.desktop.size.width + 1,
+    height: desktopState.desktop.size.height + 1,
+  };
 });
 </script>
 
@@ -272,7 +334,33 @@ onUnmounted(() => {
       />
       <div class="window-name">{{ props.title }}</div>
       <div class="v-spacer"></div>
-      <div class="window-upper-buttons-holder"></div>
+      <div
+        class="window-button win95-button"
+        :style="{
+          backgroundImage: `url(images/win95/minimize-icon.png)`,
+          backgroundPosition: `3px 3px`,
+        }"
+        @mousedown="onMinimizeButton"
+      />
+      <div
+        class="window-button win95-button"
+        :style="{
+          backgroundImage: `url(images/win95/maximize${
+            isMaximized ? '1' : ''
+          }-icon.png)`,
+          backgroundPosition: `3px 2px`,
+          marginRight: `2px`,
+        }"
+        @mousedown="onMaximizeButton"
+      />
+      <div
+        class="window-button win95-button"
+        :style="{
+          backgroundImage: `url(images/win95/close-icon.png)`,
+          backgroundPosition: `4px 3px`,
+        }"
+        @mousedown="onCloseButton"
+      />
     </div>
     <div class="window-content-holder">
       <div class="window-toolbar-holder">
@@ -352,14 +440,15 @@ onUnmounted(() => {
 }
 
 .window-icon {
-  width: 16px;
-  height: 16px;
+  min-width: 16px;
+  min-height: 16px;
   background-size: 100%;
 
   margin-right: 3px;
 }
 
 .window-name {
+  width: 100%;
   font-family: win95-bold;
   color: #ffffff;
   font-size: 11px;
@@ -368,6 +457,7 @@ onUnmounted(() => {
 
   text-overflow: ellipsis;
   overflow: hidden;
+  white-space: nowrap;
 
   transform: translate(0px, -2px);
 }
@@ -423,5 +513,15 @@ onUnmounted(() => {
   height: 12px;
 
   background-image: url(/images/win95/corner-scale.png);
+}
+
+.window-button {
+  min-width: 15px;
+  min-height: 13px;
+
+  transform: translate(0px, -1px);
+
+  margin-left: 1px;
+  background-repeat: no-repeat;
 }
 </style>

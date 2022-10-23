@@ -72,7 +72,7 @@ function runOpenClb() {
 }
 
 function onKeyPress(e: KeyboardEvent) {
-  if (e.key == "Enter" && desktopState.desktop.focusedApp == myId) runOpenClb();
+  if (e.key == "Enter" && desktopSelectedIcons.includes(myId)) runOpenClb();
 }
 
 desktopState.$subscribe((mutation, state) => {

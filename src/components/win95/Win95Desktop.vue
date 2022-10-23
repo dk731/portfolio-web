@@ -48,8 +48,23 @@ function onMouseUp(e: MouseEvent) {
   desktopState.desktop.moveOffset = { x: 0, y: 0 };
 }
 
-onMounted(() => document.addEventListener("mouseup", onMouseUp));
-onUnmounted(() => document.removeEventListener("mouseup", onMouseUp));
+function onWindowResize() {
+  desktopState.desktop.size = {
+    width: desktopRef.value.clientWidth,
+    height: desktopRef.value.clientHeight,
+  };
+}
+
+onMounted(() => {
+  document.addEventListener("mouseup", onMouseUp);
+  window.addEventListener("resize", onWindowResize);
+
+  onWindowResize();
+});
+onUnmounted(() => {
+  document.removeEventListener("mouseup", onMouseUp);
+  window.removeEventListener("resize", onWindowResize);
+});
 
 function onTestOpen() {
   console.log("Oppened Test!");
@@ -116,10 +131,10 @@ function onTestOpen() {
 
 .win95-holder {
   position: relative;
-  width: 800px1;
-  height: 600px;
-  /* width: 100%;
-  height: 100%; */
+  /* width: 800px1;
+  height: 600px; */
+  width: 100%;
+  height: 100%;
 
   display: flex;
   flex-direction: column;
@@ -144,9 +159,10 @@ function onTestOpen() {
 .win95-button {
   box-shadow: inset 1px 1px #ffffff, 0.5px 0.5px 0 0.5px #000000,
     1px 1px #87888f, inset -1px -1px #85898d;
+  background: #c0c7c8;
 }
 
-.win95-button.active {
+.win95-button:active {
   box-shadow: 0.5px 0.5px 0 0.5px white, inset 1px 1px black,
     inset -1px -1px #c0c7c8, inset 2px 2px #85898d;
 }

@@ -16,9 +16,7 @@ setInterval(() => (currentTime.value = moment()), 1000);
       <div class="taskbar-icons-holder">
         <div
           v-for="app in desktopState.taskbar.taskbarApps"
-          :class="`taskbar-app win95-button ${
-            app.id == desktopState.taskbar.activeApp?.id ? 'active' : ''
-          }`"
+          class="taskbar-app win95-button"
           @click="app.onOpenClb"
         >
           <div

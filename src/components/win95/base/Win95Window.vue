@@ -22,10 +22,12 @@ enum ResizeState {
 }
 
 const props = defineProps<{
+  id: string;
   icon: string;
   title: string;
   initialPosition: DesktopPoint;
   initialSize: DesktopSize;
+  isVisible: boolean;
   onCloseClb?: () => void;
   onMinimizeClb?: () => void;
   onMaximizeClb?: () => void;
@@ -33,7 +35,6 @@ const props = defineProps<{
 
 const slots = useSlots();
 const desktopState = useDesktopState();
-const myId = uuid4();
 
 const myPosition = ref<DesktopPoint>({ ...props.initialPosition });
 const mySize = ref<DesktopSize>({ ...props.initialSize });
@@ -134,6 +135,9 @@ function onWindowLeave(e: MouseEvent) {
 
 var prevMousePos: DesktopPoint = { x: 0, y: 0 };
 function onMouseDown(e: MouseEvent) {
+  desktopState.taskbar.activeApp = props.id;
+  desktopState.moveFront(props.id);
+
   if (resizeState != ResizeState.None) {
     isResizing.value = true;
     isDragged.value = false;
@@ -288,6 +292,10 @@ function onCloseButton(e: MouseEvent) {
   if (props.onCloseClb) return props.onCloseClb();
 }
 
+function preventMouseDown(e: MouseEvent) {
+  e.stopPropagation();
+}
+
 function onGlobalMouseMove(e: MouseEvent) {
   if (isResizing.value) resize(e);
   else if (isDragged.value) move(e);
@@ -314,20 +322,28 @@ desktopState.$subscribe(() => {
 
 <template>
   <div
+    v-if="props.isVisible"
     class="win95-window-holder"
     :style="{
       left: `${myPosition.x}px`,
       top: `${myPosition.y}px`,
       width: `${mySize.width}px`,
       height: `${mySize.height}px`,
-      zIndex: desktopState.desktop.oppenedWindows.indexOf(myId) * 10 + 10,
+      zIndex: desktopState.desktop.oppenedWindows.indexOf(props.id) * 10 + 10,
     }"
     @mousemove="onMouseMove"
     @mousedown="onMouseDown"
     @mouseleave="onWindowLeave"
     ref="windowRef"
   >
-    <div class="window-upper-bar" @mousedown="onDraggableMouseDown">
+    <div
+      class="window-upper-bar"
+      @mousedown="onDraggableMouseDown"
+      :style="{
+        background:
+          desktopState.taskbar.activeApp == props.id ? `#0000a8` : `#87888f`,
+      }"
+    >
       <div
         class="window-icon"
         :style="{ backgroundImage: `url(${props.icon})` }"
@@ -340,7 +356,8 @@ desktopState.$subscribe(() => {
           backgroundImage: `url(images/win95/minimize-icon.png)`,
           backgroundPosition: `3px 3px`,
         }"
-        @mousedown="onMinimizeButton"
+        @mousedown="preventMouseDown"
+        @click="onMinimizeButton"
       />
       <div
         class="window-button win95-button"
@@ -351,7 +368,8 @@ desktopState.$subscribe(() => {
           backgroundPosition: `3px 2px`,
           marginRight: `2px`,
         }"
-        @mousedown="onMaximizeButton"
+        @mousedown="preventMouseDown"
+        @click="onMaximizeButton"
       />
       <div
         class="window-button win95-button"
@@ -359,7 +377,8 @@ desktopState.$subscribe(() => {
           backgroundImage: `url(images/win95/close-icon.png)`,
           backgroundPosition: `4px 3px`,
         }"
-        @mousedown="onCloseButton"
+        @mousedown="preventMouseDown"
+        @click="onCloseButton"
       />
     </div>
     <div class="window-content-holder">
@@ -384,7 +403,7 @@ desktopState.$subscribe(() => {
             @mousemove="onMouseCornerOver"
             :style="{
               zIndex:
-                desktopState.desktop.oppenedWindows.indexOf(myId) * 10 + 11,
+                desktopState.desktop.oppenedWindows.indexOf(props.id) * 10 + 11,
             }"
           ></div>
         </div>
@@ -430,8 +449,6 @@ desktopState.$subscribe(() => {
   flex-direction: row;
   align-items: center;
 
-  background-color: #0000a8;
-
   box-sizing: border-box;
 
   padding: 1px;
@@ -448,7 +465,6 @@ desktopState.$subscribe(() => {
 }
 
 .window-name {
-  width: 100%;
   font-family: win95-bold;
   color: #ffffff;
   font-size: 11px;

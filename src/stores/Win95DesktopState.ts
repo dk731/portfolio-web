@@ -1,12 +1,5 @@
 import { defineStore } from "pinia";
 
-type TaskMeta = {
-  id: string;
-  iconName?: string;
-  taskbarTitle?: string;
-  onOpenClb: () => void;
-};
-
 export type DesktopPoint = { x: number; y: number };
 export type DesktopSize = { width: number; height: number };
 
@@ -24,7 +17,7 @@ export enum Win95Font {
 }
 
 type DesktopState = {
-  taskbar: { activeApp?: TaskMeta; taskbarApps: TaskMeta[] };
+  taskbar: { activeApp?: string; taskbarApps: string[] };
   desktop: {
     selectActive: boolean;
     selectRect: { p1: DesktopPoint; p2: DesktopPoint };
@@ -55,4 +48,12 @@ export const useDesktopState = defineStore("desktop-store", {
       },
       activeCursor: Win95Cursor.default,
     } as DesktopState),
+  actions: {
+    moveFront(app: string) {
+      this.desktop.oppenedWindows = [
+        ...this.desktop.oppenedWindows.filter((el) => el != app),
+        app,
+      ];
+    },
+  },
 });

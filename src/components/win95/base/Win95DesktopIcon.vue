@@ -12,6 +12,7 @@ import moment from "moment";
 import { v4 as uuid4 } from "uuid";
 
 const props = defineProps<{
+  id: string;
   icon: string;
   title: string;
   initialPosition: DesktopPoint;
@@ -20,7 +21,6 @@ const props = defineProps<{
 
 const desktopSelectedIcons = useDesktopSelectedIcons();
 const desktopState = useDesktopState();
-const myId = uuid4();
 
 // Top, left point
 const myPosition = ref<DesktopPoint>({ ...props.initialPosition });
@@ -32,7 +32,7 @@ var hasDragged = false;
 function onMouseUp(e: MouseEvent) {
   console.log(hasDragged);
   if (!hasDragged && !e.ctrlKey) {
-    desktopSelectedIcons.selectedIcons = [myId];
+    desktopSelectedIcons.selectedIcons = [props.id];
   }
 }
 
@@ -40,12 +40,12 @@ var isDoubleClick = false;
 function onMouseDown(e: MouseEvent) {
   hasDragged = false;
 
-  if (!e.ctrlKey && !desktopSelectedIcons.includes(myId))
-    desktopSelectedIcons.selectedIcons = [myId];
-  else desktopSelectedIcons.insert(myId);
+  if (!e.ctrlKey && !desktopSelectedIcons.includes(props.id))
+    desktopSelectedIcons.selectedIcons = [props.id];
+  else desktopSelectedIcons.insert(props.id);
 
   // Update current icon global state
-  desktopState.desktop.focusedApp = myId;
+  desktopState.desktop.focusedApp = props.id;
 
   // Handle open logic
   if (isDoubleClick) {
@@ -72,7 +72,7 @@ function runOpenClb() {
 }
 
 function onKeyPress(e: KeyboardEvent) {
-  if (e.key == "Enter" && desktopSelectedIcons.includes(myId)) runOpenClb();
+  if (e.key == "Enter" && desktopSelectedIcons.includes(props.id)) runOpenClb();
 }
 
 desktopState.$subscribe((mutation, state) => {
@@ -98,11 +98,11 @@ desktopState.$subscribe((mutation, state) => {
       userCompare.y < myCompare.y + myCompare.height &&
       userCompare.height + userCompare.y > myCompare.y
     )
-      desktopSelectedIcons.insert(myId);
-    else desktopSelectedIcons.remove(myId);
+      desktopSelectedIcons.insert(props.id);
+    else desktopSelectedIcons.remove(props.id);
   } else if (
     desktopState.desktop.selectMoving &&
-    desktopSelectedIcons.includes(myId)
+    desktopSelectedIcons.includes(props.id)
   ) {
     // Move current icon
     hasDragged =
@@ -133,7 +133,7 @@ onUnmounted(() => document.removeEventListener("keypress", onKeyPress));
       :style="{ backgroundImage: `url(${props.icon})` }"
     >
       <div
-        v-if="desktopSelectedIcons.includes(myId)"
+        v-if="desktopSelectedIcons.includes(props.id)"
         :style="{
           WebkitMaskImage: `url(${props.icon})`,
           maskImage: `url(${props.icon})`,
@@ -143,12 +143,12 @@ onUnmounted(() => document.removeEventListener("keypress", onKeyPress));
     </div>
     <div
       :class="`desktop-icon-title ${
-        desktopSelectedIcons.includes(myId) ? 'selected' : ''
+        desktopSelectedIcons.includes(props.id) ? 'selected' : ''
       }`"
     >
       {{ props.title }}
       <div
-        v-if="desktopState.desktop.focusedApp == myId"
+        v-if="desktopState.desktop.focusedApp == props.id"
         class="desktop-title-border"
       ></div>
     </div>
@@ -191,8 +191,8 @@ onUnmounted(() => document.removeEventListener("keypress", onKeyPress));
   width: 100%;
   height: 100%;
 
-  background: repeating-conic-gradient(#0000a8 0% 25%, transparent 0% 50%) 50% /
-    2px 2px;
+  background: repeating-conic-gradient(#0000a8 0% 25%, transparent 0% 50%) 0px
+    0px / 2px 2px;
 
   -webkit-mask-size: 100%;
   mask-size: 100%;

@@ -1,28 +1,27 @@
 <script setup lang="ts">
 // const props = defineProps<{ onOpenClb: () => void }>();
 
+import { useDesktopApps } from "@/stores/Win95DesktopApps";
 import { useDesktopState } from "@/stores/Win95DesktopState";
-import { onMounted } from "vue";
+
 import { v4 as uuid4 } from "uuid";
 
 const desktopState = useDesktopState();
+const desktopApps = useDesktopApps();
+const myId = uuid4();
 
 function onOpenClb() {
-  console.log("Weee", myAppConf);
-  desktopState.taskbar.activeApp = myAppConf;
+  desktopState.taskbar.activeApp = myId;
 }
 
-const myAppConf = {
-  id: uuid4(),
-  iconName: "images/win95/windows-4.png",
-  taskbarTitle: "Start",
+desktopApps.apps[myId] = {
+  id: myId,
+  icon: "images/win95/windows-4.png",
+  title: "Start",
+  onFocusClb: onOpenClb,
   onOpenClb: onOpenClb,
 };
-
-onMounted(() => {
-  // Register 'start' app in taskbar
-  desktopState.taskbar.taskbarApps.unshift(myAppConf);
-});
+desktopState.taskbar.taskbarApps.unshift(myId);
 </script>
 
 <template>

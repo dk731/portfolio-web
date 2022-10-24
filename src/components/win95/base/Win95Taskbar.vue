@@ -1,12 +1,18 @@
 <script setup lang="ts">
+import { useDesktopApps } from "@/stores/Win95DesktopApps";
 import { useDesktopState } from "@/stores/Win95DesktopState";
 import moment from "moment";
 import { ref } from "vue";
 
 const desktopState = useDesktopState();
+const desktopApps = useDesktopApps();
 
 const currentTime = ref<moment.Moment>(moment());
 setInterval(() => (currentTime.value = moment()), 1000);
+
+function onFocusClick(app: string) {
+  desktopApps.apps[app].onFocusClb();
+}
 </script>
 
 <template>
@@ -16,17 +22,19 @@ setInterval(() => (currentTime.value = moment()), 1000);
       <div class="taskbar-icons-holder">
         <div
           v-for="app in desktopState.taskbar.taskbarApps"
-          class="taskbar-app win95-button"
-          @click="app.onOpenClb"
+          :class="`taskbar-app win95-button ${
+            desktopState.taskbar.activeApp == app ? 'active-application' : ''
+          }`"
+          @click="onFocusClick(app)"
         >
           <div
-            v-if="app.iconName"
+            v-if="desktopApps.apps[app].icon"
             class="taskbar-task-icon"
             draggable="false"
-            :style="{ backgroundImage: `url(${app.iconName})` }"
+            :style="{ backgroundImage: `url(${desktopApps.apps[app].icon})` }"
           />
-          <div v-if="app.taskbarTitle" class="taskbar-task-title">
-            {{ app.taskbarTitle }}
+          <div v-if="desktopApps.apps[app].title" class="taskbar-task-title">
+            {{ desktopApps.apps[app].title }}
           </div>
         </div>
       </div>
@@ -108,6 +116,7 @@ setInterval(() => (currentTime.value = moment()), 1000);
 .taskbar-task-icon {
   width: 16px;
   height: 16px;
+  background-size: 100%;
   margin-right: 3px;
 }
 
@@ -119,15 +128,19 @@ setInterval(() => (currentTime.value = moment()), 1000);
 }
 
 .taskbar-app {
+  position: relative;
+
   display: flex;
   flex-direction: row;
 
   align-items: center;
   padding: 3px;
+  margin-right: 3px;
 }
 
 .taskbar-app:first-child {
   padding-right: 5px;
+  margin-right: 4px;
 }
 
 .sound-icon {
@@ -145,5 +158,26 @@ setInterval(() => (currentTime.value = moment()), 1000);
   letter-spacing: 1px;
 
   user-select: none;
+}
+
+.active-application {
+  box-shadow: 0.5px 0.5px 0 0.5px white, inset 1px 1px black,
+    inset -1px -1px #c0c7c8, inset 2px 2px #85898d;
+  overflow: hidden;
+}
+
+.active-application:before {
+  content: "";
+  position: absolute;
+
+  left: 1px;
+  top: 1px;
+
+  width: calc(100% - 2px);
+  height: calc(100% - 2px);
+
+  mix-blend-mode: multiply;
+  background: repeating-conic-gradient(#c0c7c8 0% 25%, transparent 0% 50%) 0px
+    0px / 2px 2px;
 }
 </style>

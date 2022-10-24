@@ -136,6 +136,8 @@ function onWindowLeave(e: MouseEvent) {
 var prevMousePos: DesktopPoint = { x: 0, y: 0 };
 function onMouseDown(e: MouseEvent) {
   desktopState.taskbar.activeApp = props.id;
+  desktopState.moveFront(props.id);
+
   if (resizeState != ResizeState.None) {
     isResizing.value = true;
     isDragged.value = false;
@@ -290,6 +292,10 @@ function onCloseButton(e: MouseEvent) {
   if (props.onCloseClb) return props.onCloseClb();
 }
 
+function preventMouseDown(e: MouseEvent) {
+  e.stopPropagation();
+}
+
 function onGlobalMouseMove(e: MouseEvent) {
   if (isResizing.value) resize(e);
   else if (isDragged.value) move(e);
@@ -350,7 +356,8 @@ desktopState.$subscribe(() => {
           backgroundImage: `url(images/win95/minimize-icon.png)`,
           backgroundPosition: `3px 3px`,
         }"
-        @mousedown="onMinimizeButton"
+        @mousedown="preventMouseDown"
+        @click="onMinimizeButton"
       />
       <div
         class="window-button win95-button"
@@ -361,7 +368,8 @@ desktopState.$subscribe(() => {
           backgroundPosition: `3px 2px`,
           marginRight: `2px`,
         }"
-        @mousedown="onMaximizeButton"
+        @mousedown="preventMouseDown"
+        @click="onMaximizeButton"
       />
       <div
         class="window-button win95-button"
@@ -369,7 +377,8 @@ desktopState.$subscribe(() => {
           backgroundImage: `url(images/win95/close-icon.png)`,
           backgroundPosition: `4px 3px`,
         }"
-        @mousedown="onCloseButton"
+        @mousedown="preventMouseDown"
+        @click="onCloseButton"
       />
     </div>
     <div class="window-content-holder">

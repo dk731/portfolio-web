@@ -7,11 +7,12 @@ import {
   Win95Font,
   useDesktopState,
 } from "@/stores/Win95DesktopState";
-import Win95StartApp from "./applications/Win95StartApp.vue";
+
 import Win95Taskbar from "./base/Win95Taskbar.vue";
 import Win95DesktopUserSelect from "./base/Win95DesktopUserSelect.vue";
-import Win95Window from "./base/Win95Window.vue";
-import Win95Application from "./base/Win95Application.vue";
+
+import Win95StartApp from "./applications/Win95StartApp.vue";
+import Win95AboutMeApp from "./applications/Win95AboutMeApp.vue";
 
 const desktopState = useDesktopState();
 const desktopRef = ref(null as any);
@@ -85,27 +86,7 @@ function onTestOpen() {
     >
       <Win95StartApp></Win95StartApp>
 
-      <Win95Application
-        :icon="`images/win95/computer_explorer-4.png`"
-        :title="`About Me`"
-        :init-icon="{ position: { x: 50, y: 50 } }"
-        :init-window="{
-          position: { x: 100, y: 100 },
-          size: { width: 300, height: 150 },
-        }"
-      >
-      </Win95Application>
-
-      <Win95Application
-        :icon="`images/win95/computer_explorer-3.png`"
-        :title="`Test Application`"
-        :init-icon="{ position: { x: 100, y: 100 } }"
-        :init-window="{
-          position: { x: 100, y: 100 },
-          size: { width: 300, height: 150 },
-        }"
-      >
-      </Win95Application>
+      <Win95AboutMeApp></Win95AboutMeApp>
 
       <Win95DesktopUserSelect />
     </div>

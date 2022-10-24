@@ -5,6 +5,7 @@ export type AppMeta = {
   title: string;
   icon: string;
   onFocusClb: () => void;
+  onOpenClb: () => void;
 };
 
 export const useDesktopApps = defineStore("desktop-apps", {

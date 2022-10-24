@@ -19,6 +19,7 @@ desktopApps.apps[myId] = {
   icon: "images/win95/windows-4.png",
   title: "Start",
   onFocusClb: onOpenClb,
+  onOpenClb: onOpenClb,
 };
 desktopState.taskbar.taskbarApps.unshift(myId);
 </script>

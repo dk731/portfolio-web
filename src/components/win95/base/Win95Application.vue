@@ -36,13 +36,11 @@ const isOppened = ref<boolean>(false);
 function onOpenClb() {
   isOppened.value = true;
   isMinimized.value = false;
-  desktopSelectedIcons.selectedIcons = [];
+  setTimeout(() => (desktopSelectedIcons.selectedIcons = []), 10);
+
   desktopState.desktop.focusedApp = undefined;
 
-  desktopState.desktop.oppenedWindows = [
-    ...desktopState.desktop.oppenedWindows.filter((el) => el != myId),
-    myId,
-  ];
+  desktopState.moveFront(myId);
 
   desktopState.taskbar.activeApp = myId;
   if (!desktopState.taskbar.taskbarApps.includes(myId))
@@ -72,11 +70,13 @@ desktopApps.apps[myId] = {
   icon: props.icon,
   title: props.title,
   onFocusClb: onOpenClb,
+  onOpenClb: onOpenClb,
 };
 </script>
 
 <template>
   <Win95DesktopIcon
+    :id="myId"
     :icon="props.icon"
     :title="props.title"
     :initialPosition="props.initIcon.position"
@@ -94,7 +94,15 @@ desktopApps.apps[myId] = {
     :on-minimize-clb="onMinimizeClb"
     :on-maximize-clb="onMaximizeClb"
   >
-    <!-- <template #bottom-bar><div>123</div></template> -->
+    <template #content>
+      <slot name="content"></slot>
+    </template>
+    <template #toolbar>
+      <slot name="toolbar"></slot>
+    </template>
+    <template #bottom-bar>
+      <slot name="bottom-bar"></slot>
+    </template>
   </Win95Window>
 </template>
 

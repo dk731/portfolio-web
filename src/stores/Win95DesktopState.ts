@@ -48,4 +48,12 @@ export const useDesktopState = defineStore("desktop-store", {
       },
       activeCursor: Win95Cursor.default,
     } as DesktopState),
+  actions: {
+    moveFront(app: string) {
+      this.desktop.oppenedWindows = [
+        ...this.desktop.oppenedWindows.filter((el) => el != app),
+        app,
+      ];
+    },
+  },
 });

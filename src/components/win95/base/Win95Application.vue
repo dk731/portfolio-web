@@ -9,6 +9,7 @@ import Win95DesktopIcon from "./Win95DesktopIcon.vue";
 import Win95Window from "./Win95Window.vue";
 import { v4 as uuid4 } from "uuid";
 import { useDesktopApps } from "@/stores/Win95DesktopApps";
+import { useDesktopSelectedIcons } from "@/stores/Win95DesktopSelectedState";
 
 const props = defineProps<{
   icon: string;
@@ -25,6 +26,7 @@ const props = defineProps<{
 
 const desktopState = useDesktopState();
 const desktopApps = useDesktopApps();
+const desktopSelectedIcons = useDesktopSelectedIcons();
 
 const isMinimized = ref<boolean>(false);
 const myId = uuid4();
@@ -33,6 +35,9 @@ const isOppened = ref<boolean>(false);
 
 function onOpenClb() {
   isOppened.value = true;
+  isMinimized.value = false;
+  desktopSelectedIcons.selectedIcons = [];
+  desktopState.desktop.focusedApp = undefined;
 
   desktopState.desktop.oppenedWindows = [
     ...desktopState.desktop.oppenedWindows.filter((el) => el != myId),
@@ -49,12 +54,17 @@ function onCloseClb() {
   desktopState.taskbar.taskbarApps = desktopState.taskbar.taskbarApps.filter(
     (el) => el != myId
   );
+
+  if (props.onCloseClb) props.onCloseClb();
 }
 function onMinimizeClb() {
-  console.log("Minimize");
+  isMinimized.value = true;
+  desktopState.taskbar.activeApp = undefined;
+
+  if (props.onMinimizeClb) props.onMinimizeClb();
 }
 function onMaximizeClb() {
-  console.log("Maximize");
+  if (props.onMaximizeClb) props.onMaximizeClb();
 }
 
 desktopApps.apps[myId] = {
@@ -74,7 +84,7 @@ desktopApps.apps[myId] = {
   ></Win95DesktopIcon>
 
   <Win95Window
-    v-if="isOppened && !isMinimized"
+    :is-visible="isOppened && !isMinimized"
     :id="myId"
     :icon="props.icon"
     :title="props.title"
@@ -88,4 +98,4 @@ desktopApps.apps[myId] = {
   </Win95Window>
 </template>
 
-<style></style>
+<style scoped></style>

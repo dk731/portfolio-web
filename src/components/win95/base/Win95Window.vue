@@ -27,6 +27,7 @@ const props = defineProps<{
   title: string;
   initialPosition: DesktopPoint;
   initialSize: DesktopSize;
+  isVisible: boolean;
   onCloseClb?: () => void;
   onMinimizeClb?: () => void;
   onMaximizeClb?: () => void;
@@ -315,6 +316,7 @@ desktopState.$subscribe(() => {
 
 <template>
   <div
+    v-if="props.isVisible"
     class="win95-window-holder"
     :style="{
       left: `${myPosition.x}px`,

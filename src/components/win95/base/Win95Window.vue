@@ -134,6 +134,7 @@ function onWindowLeave(e: MouseEvent) {
 
 var prevMousePos: DesktopPoint = { x: 0, y: 0 };
 function onMouseDown(e: MouseEvent) {
+  desktopState.taskbar.activeApp = props.id;
   if (resizeState != ResizeState.None) {
     isResizing.value = true;
     isDragged.value = false;
@@ -327,7 +328,14 @@ desktopState.$subscribe(() => {
     @mouseleave="onWindowLeave"
     ref="windowRef"
   >
-    <div class="window-upper-bar" @mousedown="onDraggableMouseDown">
+    <div
+      class="window-upper-bar"
+      @mousedown="onDraggableMouseDown"
+      :style="{
+        background:
+          desktopState.taskbar.activeApp == props.id ? `#0000a8` : `#87888f`,
+      }"
+    >
       <div
         class="window-icon"
         :style="{ backgroundImage: `url(${props.icon})` }"
@@ -429,8 +437,6 @@ desktopState.$subscribe(() => {
   display: flex;
   flex-direction: row;
   align-items: center;
-
-  background-color: #0000a8;
 
   box-sizing: border-box;
 

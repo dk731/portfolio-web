@@ -29,7 +29,7 @@ function onMouseMove(e: MouseEvent) {
 }
 
 function onMouseDown(e: MouseEvent) {
-  console.log("Desktop mouse down");
+  desktopState.taskbar.activeApp = undefined;
   const el = desktopRef.value.getBoundingClientRect();
 
   const newPosition = {

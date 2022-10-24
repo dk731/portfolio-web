@@ -191,8 +191,8 @@ onUnmounted(() => document.removeEventListener("keypress", onKeyPress));
   width: 100%;
   height: 100%;
 
-  background: repeating-conic-gradient(#0000a8 0% 25%, transparent 0% 50%) 50% /
-    2px 2px;
+  background: repeating-conic-gradient(#0000a8 0% 25%, transparent 0% 50%) 0px
+    0px / 2px 2px;
 
   -webkit-mask-size: 100%;
   mask-size: 100%;

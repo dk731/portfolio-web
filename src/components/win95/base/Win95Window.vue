@@ -22,6 +22,7 @@ enum ResizeState {
 }
 
 const props = defineProps<{
+  id: string;
   icon: string;
   title: string;
   initialPosition: DesktopPoint;
@@ -33,7 +34,6 @@ const props = defineProps<{
 
 const slots = useSlots();
 const desktopState = useDesktopState();
-const myId = uuid4();
 
 const myPosition = ref<DesktopPoint>({ ...props.initialPosition });
 const mySize = ref<DesktopSize>({ ...props.initialSize });
@@ -320,7 +320,7 @@ desktopState.$subscribe(() => {
       top: `${myPosition.y}px`,
       width: `${mySize.width}px`,
       height: `${mySize.height}px`,
-      zIndex: desktopState.desktop.oppenedWindows.indexOf(myId) * 10 + 10,
+      zIndex: desktopState.desktop.oppenedWindows.indexOf(props.id) * 10 + 10,
     }"
     @mousemove="onMouseMove"
     @mousedown="onMouseDown"
@@ -384,7 +384,7 @@ desktopState.$subscribe(() => {
             @mousemove="onMouseCornerOver"
             :style="{
               zIndex:
-                desktopState.desktop.oppenedWindows.indexOf(myId) * 10 + 11,
+                desktopState.desktop.oppenedWindows.indexOf(props.id) * 10 + 11,
             }"
           ></div>
         </div>
@@ -448,7 +448,6 @@ desktopState.$subscribe(() => {
 }
 
 .window-name {
-  width: 100%;
   font-family: win95-bold;
   color: #ffffff;
   font-size: 11px;

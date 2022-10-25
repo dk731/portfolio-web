@@ -19,7 +19,7 @@ onMounted(() => {
     title="DOOM"
     :init-icon="{ position: { x: 10, y: 80 } }"
     :init-window="{
-      position: { x: 25, y: 25 },
+      position: { x: 5, y: 5 },
       size: { width: 688, height: 400 },
     }"
   >

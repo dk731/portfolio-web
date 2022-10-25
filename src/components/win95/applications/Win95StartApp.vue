@@ -1,27 +1,29 @@
 <script setup lang="ts">
-// const props = defineProps<{ onOpenClb: () => void }>();
-
-import { useDesktopApps } from "@/stores/Win95DesktopApps";
+import { useAppsState } from "@/stores/Win95AppsState";
 import { useDesktopState } from "@/stores/Win95DesktopState";
+import { useTaskbarState } from "@/stores/Win95TaskbarState";
 
-import { v4 as uuid4 } from "uuid";
-
-const desktopState = useDesktopState();
-const desktopApps = useDesktopApps();
-const myId = uuid4();
+const desktop = useDesktopState();
+const apps = useAppsState();
+const taskbar = useTaskbarState();
+const myId = "start-app";
 
 function onOpenClb() {
-  desktopState.taskbar.activeApp = myId;
+  desktop.activeApp = myId;
 }
 
-desktopApps.apps[myId] = {
+// Leave some callbacks empty as 'Start' is not interested in them
+apps.apps[myId] = {
   id: myId,
-  icon: "images/win95/windows-4.png",
   title: "Start",
-  onFocusClb: onOpenClb,
-  onOpenClb: onOpenClb,
+  icon: "images/win95/windows-4.png",
+  onOpenClb: () => onOpenClb,
+  onCloseClb: () => {},
+  onFocusClb: () => {},
+  onMinimizeClb: () => {},
+  onMaximizeClb: () => {},
 };
-desktopState.taskbar.taskbarApps.unshift(myId);
+taskbar.apps.unshift(myId);
 </script>
 
 <template>

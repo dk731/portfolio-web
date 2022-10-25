@@ -17,43 +17,17 @@ export enum Win95Font {
 }
 
 type DesktopState = {
-  taskbar: { activeApp?: string; taskbarApps: string[] };
-  desktop: {
-    selectActive: boolean;
-    selectRect: { p1: DesktopPoint; p2: DesktopPoint };
-    selectWidth: number; // Number of border layers for select box
-    focusedApp?: string;
-    selectMoving: boolean;
-    moveOffset: DesktopPoint;
-    oppenedWindows: string[];
-    size: DesktopSize;
-  };
-  activeCursor: Win95Cursor;
+  focusedApp?: string;
+  activeApp?: string;
+  size: DesktopSize;
+  cursor: Win95Cursor;
 };
 
-export const useDesktopState = defineStore("desktop-store", {
+export const useDesktopState = defineStore("win95-desktop-state", {
   state: () =>
     ({
-      taskbar: {
-        taskbarApps: [],
-      },
-      desktop: {
-        selectActive: false,
-        selectRect: { p1: { x: 0, y: 0 }, p2: { x: 0, y: 0 } },
-        selectWidth: 0,
-        selectMoving: false,
-        moveOffset: { x: 0, y: 0 },
-        oppenedWindows: [],
-        size: { width: 0, height: 0 },
-      },
-      activeCursor: Win95Cursor.default,
+      size: { width: 0, height: 0 },
+      cursor: Win95Cursor.default,
     } as DesktopState),
-  actions: {
-    moveFront(app: string) {
-      this.desktop.oppenedWindows = [
-        ...this.desktop.oppenedWindows.filter((el) => el != app),
-        app,
-      ];
-    },
-  },
+  actions: {},
 });

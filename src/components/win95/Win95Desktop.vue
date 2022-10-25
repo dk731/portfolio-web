@@ -1,36 +1,42 @@
 <script lang="ts" setup>
-import { onMounted, onUnmounted, ref, type VNode, type VNodeRef } from "vue";
-import Win95DesktopIcon from "./base/Win95DesktopIcon.vue";
+import { onMounted, onUnmounted, ref } from "vue";
 
-import {
-  Win95Cursor,
-  Win95Font,
-  useDesktopState,
-} from "@/stores/Win95DesktopState";
+import { useDesktopState } from "@/stores/Win95DesktopState";
 
 import Win95Taskbar from "./base/Win95Taskbar.vue";
 import Win95DesktopUserSelect from "./base/Win95DesktopUserSelect.vue";
 
 import Win95StartApp from "./applications/Win95StartApp.vue";
 import Win95AboutMeApp from "./applications/Win95AboutMeApp.vue";
+import { useDesktopSelectState } from "@/stores/Win95DesktopSelectState";
+import Win95DoomApp from "./applications/Win95DoomApp.vue";
 
-const desktopState = useDesktopState();
+const desktopSelect = useDesktopSelectState();
+const desktop = useDesktopState();
+
 const desktopRef = ref(null as any);
 
+var prevPosition = { x: 0, y: 0 };
 function onMouseMove(e: MouseEvent) {
   const el = desktopRef.value.getBoundingClientRect();
-  if (desktopState.desktop.selectActive)
-    desktopState.desktop.selectRect.p2 = {
-      x: e.clientX - el.left,
-      y: e.clientY - el.top,
+  const currentPosition = {
+    x: e.clientX - el.left,
+    y: e.clientY - el.top,
+  };
+
+  if (desktopSelect.active) desktopSelect.selectRect.p2 = currentPosition;
+
+  if (desktopSelect.selectMoving)
+    desktopSelect.moveOffset = {
+      x: currentPosition.x - prevPosition.x,
+      y: currentPosition.y - prevPosition.y,
     };
 
-  if (desktopState.desktop.selectMoving)
-    desktopState.desktop.moveOffset = { x: e.movementX, y: e.movementY };
+  prevPosition = currentPosition;
 }
 
 function onMouseDown(e: MouseEvent) {
-  desktopState.taskbar.activeApp = undefined;
+  desktop.activeApp = undefined;
   const el = desktopRef.value.getBoundingClientRect();
 
   const newPosition = {
@@ -38,20 +44,20 @@ function onMouseDown(e: MouseEvent) {
     y: e.clientY - el.top,
   };
 
-  desktopState.desktop.selectRect.p1 = newPosition;
-  desktopState.desktop.selectRect.p2 = newPosition;
-  desktopState.desktop.selectActive = true;
+  desktopSelect.selectRect.p1 = newPosition;
+  desktopSelect.selectRect.p2 = newPosition;
+  desktopSelect.active = true;
 }
 
 function onMouseUp(e: MouseEvent) {
-  desktopState.desktop.selectActive = false;
+  desktopSelect.active = false;
 
-  desktopState.desktop.selectMoving = false;
-  desktopState.desktop.moveOffset = { x: 0, y: 0 };
+  desktopSelect.selectMoving = false;
+  desktopSelect.moveOffset = { x: 0, y: 0 };
 }
 
 function onWindowResize() {
-  desktopState.desktop.size = {
+  desktop.size = {
     width: desktopRef.value.clientWidth,
     height: desktopRef.value.clientHeight,
   };
@@ -67,17 +73,10 @@ onUnmounted(() => {
   document.removeEventListener("mouseup", onMouseUp);
   window.removeEventListener("resize", onWindowResize);
 });
-
-function onTestOpen() {
-  console.log("Oppened Test!");
-}
 </script>
 
 <template>
-  <div
-    class="win95-holder"
-    :style="{ cursor: `url(${desktopState.activeCursor}), auto` }"
-  >
+  <div class="win95-holder" :style="{ cursor: `url(${desktop.cursor}), auto` }">
     <div
       class="win95-desktop-holder"
       @mousedown="onMouseDown"
@@ -87,6 +86,7 @@ function onTestOpen() {
       <Win95StartApp></Win95StartApp>
 
       <Win95AboutMeApp></Win95AboutMeApp>
+      <Win95DoomApp></Win95DoomApp>
 
       <Win95DesktopUserSelect />
     </div>

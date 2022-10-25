@@ -19,7 +19,7 @@ const props = defineProps<{
   title: string;
 
   initIcon: { position: DesktopPoint };
-  initWindow: { position: DesktopPoint; size: DesktopSize };
+  initWindow: { position: DesktopPoint; size: DesktopSize }; // Size of content
 
   onOpenClb?: () => void;
   onCloseClb?: () => void;

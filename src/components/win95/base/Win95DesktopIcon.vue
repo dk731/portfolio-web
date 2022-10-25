@@ -166,6 +166,8 @@ onUnmounted(() => document.removeEventListener("keypress", onKeyPress));
   align-items: center;
 
   box-sizing: border-box;
+
+  min-width: 68px;
 }
 
 /* Remove pointer events from all children */

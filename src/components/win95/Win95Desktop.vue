@@ -9,6 +9,7 @@ import Win95DesktopUserSelect from "./base/Win95DesktopUserSelect.vue";
 import Win95StartApp from "./applications/Win95StartApp.vue";
 import Win95AboutMeApp from "./applications/Win95AboutMeApp.vue";
 import { useDesktopSelectState } from "@/stores/Win95DesktopSelectState";
+import Win95DoomApp from "./applications/Win95DoomApp.vue";
 
 const desktopSelect = useDesktopSelectState();
 const desktop = useDesktopState();
@@ -85,7 +86,7 @@ onUnmounted(() => {
       <Win95StartApp></Win95StartApp>
 
       <Win95AboutMeApp></Win95AboutMeApp>
-      <Win95AboutMeApp></Win95AboutMeApp>
+      <Win95DoomApp></Win95DoomApp>
 
       <Win95DesktopUserSelect />
     </div>

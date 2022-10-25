@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import Win95Application from "../base/Win95Application.vue";
+import Win95Application from "../base/Win95DesktopApplication.vue";
 </script>
 
 <template>

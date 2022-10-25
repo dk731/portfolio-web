@@ -4,14 +4,17 @@ import {
   type DesktopPoint,
   type DesktopSize,
 } from "@/stores/Win95DesktopState";
-import { ref } from "vue";
+
 import Win95DesktopIcon from "./Win95DesktopIcon.vue";
 import Win95Window from "./Win95Window.vue";
 import { v4 as uuid4 } from "uuid";
-import { useDesktopApps } from "@/stores/Win95DesktopApps";
-import { useDesktopSelectedIcons } from "@/stores/Win95DesktopSelectedState";
+import { useAppsState } from "@/stores/Win95AppsState";
+import { useDesktopSelectedIconsState } from "@/stores/Win95DesktopSelectedIconsState";
+import { useWindowsState } from "@/stores/Win95WindowsState";
+import { useTaskbarState } from "@/stores/Win95TaskbarState";
 
 const props = defineProps<{
+  id?: string;
   icon: string;
   title: string;
 
@@ -20,79 +23,76 @@ const props = defineProps<{
 
   onOpenClb?: () => void;
   onCloseClb?: () => void;
+  onFocusClb?: () => void;
   onMinimizeClb?: () => void;
   onMaximizeClb?: () => void;
 }>();
 
-const desktopState = useDesktopState();
-const desktopApps = useDesktopApps();
-const desktopSelectedIcons = useDesktopSelectedIcons();
+const myId = props.id ? props.id : uuid4();
 
-const isMinimized = ref<boolean>(false);
-const myId = uuid4();
-
-const isOppened = ref<boolean>(false);
+const taskbar = useTaskbarState();
+const windows = useWindowsState();
+const desktop = useDesktopState();
+const apps = useAppsState();
+const desktopSelectedIcons = useDesktopSelectedIconsState();
 
 function onOpenClb() {
-  isOppened.value = true;
-  isMinimized.value = false;
-  setTimeout(() => (desktopSelectedIcons.selectedIcons = []), 10);
+  windows.add(myId);
+  taskbar.add(myId);
+  desktop.activeApp = myId;
 
-  desktopState.desktop.focusedApp = undefined;
-
-  desktopState.moveFront(myId);
-
-  desktopState.taskbar.activeApp = myId;
-  if (!desktopState.taskbar.taskbarApps.includes(myId))
-    desktopState.taskbar.taskbarApps.push(myId);
+  // Wait small amout of time to give some time to all selected
+  // apps to open and then clear selected icons array
+  setTimeout(() => (desktopSelectedIcons.icons = []), 50);
 }
 function onCloseClb() {
-  isOppened.value = false;
+  windows.remove(myId);
+  taskbar.remove(myId);
+  desktop.focusedApp = myId;
 
-  desktopState.taskbar.taskbarApps = desktopState.taskbar.taskbarApps.filter(
-    (el) => el != myId
-  );
+  taskbar.apps = taskbar.apps.filter((el) => el != myId);
 
   if (props.onCloseClb) props.onCloseClb();
 }
 function onMinimizeClb() {
-  isMinimized.value = true;
-  desktopState.taskbar.activeApp = undefined;
+  windows.remove(myId);
+  if (desktop.activeApp == myId) desktop.activeApp = undefined;
 
   if (props.onMinimizeClb) props.onMinimizeClb();
 }
 function onMaximizeClb() {
   if (props.onMaximizeClb) props.onMaximizeClb();
 }
+function onFocusClb() {
+  desktop.activeApp = myId;
+  windows.moveFront(myId);
+  desktopSelectedIcons.icons = [];
 
-desktopApps.apps[myId] = {
+  if (props.onFocusClb) props.onFocusClb();
+}
+
+apps.apps[myId] = {
   id: myId,
-  icon: props.icon,
   title: props.title,
-  onFocusClb: onOpenClb,
+  icon: props.icon,
   onOpenClb: onOpenClb,
+  onCloseClb: onCloseClb,
+  onFocusClb: onFocusClb,
+  onMinimizeClb: onMinimizeClb,
+  onMaximizeClb: onMaximizeClb,
 };
 </script>
 
 <template>
   <Win95DesktopIcon
     :id="myId"
-    :icon="props.icon"
-    :title="props.title"
     :initialPosition="props.initIcon.position"
-    :on-open-clb="onOpenClb"
   ></Win95DesktopIcon>
 
   <Win95Window
-    :is-visible="isOppened && !isMinimized"
     :id="myId"
-    :icon="props.icon"
-    :title="props.title"
     :initialPosition="props.initWindow.position"
     :initialSize="props.initWindow.size"
-    :on-close-clb="onCloseClb"
-    :on-minimize-clb="onMinimizeClb"
-    :on-maximize-clb="onMaximizeClb"
   >
     <template #content>
       <slot name="content"></slot>

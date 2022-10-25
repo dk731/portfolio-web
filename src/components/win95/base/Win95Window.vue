@@ -8,6 +8,9 @@ import {
 import { onMounted, onUnmounted, ref, useSlots } from "vue";
 
 import { v4 as uuid4 } from "uuid";
+import { useTaskbarState } from "@/stores/Win95TaskbarState";
+import { useWindowsState } from "@/stores/Win95WindowsState";
+import { useAppsState, type AppMeta } from "@/stores/Win95AppsState";
 
 enum ResizeState {
   UpperLeft,
@@ -23,18 +26,16 @@ enum ResizeState {
 
 const props = defineProps<{
   id: string;
-  icon: string;
-  title: string;
   initialPosition: DesktopPoint;
   initialSize: DesktopSize;
-  isVisible: boolean;
-  onCloseClb?: () => void;
-  onMinimizeClb?: () => void;
-  onMaximizeClb?: () => void;
 }>();
 
 const slots = useSlots();
-const desktopState = useDesktopState();
+
+const apps = useAppsState();
+const taskbar = useTaskbarState();
+const windows = useWindowsState();
+const desktop = useDesktopState();
 
 const myPosition = ref<DesktopPoint>({ ...props.initialPosition });
 const mySize = ref<DesktopSize>({ ...props.initialSize });
@@ -76,7 +77,7 @@ function onMouseMove(e: MouseEvent) {
       !cornerTopBottmoCheck &&
       !cornerTopBottmoCheckInv
     ) {
-      desktopState.activeCursor = Win95Cursor.sideResize;
+      desktop.cursor = Win95Cursor.sideResize;
       resizeState = sideCheck
         ? ResizeState.MiddleLeft
         : ResizeState.MiddleRight;
@@ -85,7 +86,7 @@ function onMouseMove(e: MouseEvent) {
       !cornerSideCheck &&
       !cornerSideCheckInv
     ) {
-      desktopState.activeCursor = Win95Cursor.topBotResize;
+      desktop.cursor = Win95Cursor.topBotResize;
       resizeState = topBotCheck
         ? ResizeState.UpperMiddle
         : ResizeState.BottomMiddle;
@@ -95,7 +96,7 @@ function onMouseMove(e: MouseEvent) {
       (sideCheckInv && cornerTopBottmoCheckInv) ||
       (cornerSideCheckInv && topBotCheckInv)
     ) {
-      desktopState.activeCursor = Win95Cursor.cornerResizeNeg;
+      desktop.cursor = Win95Cursor.cornerResizeNeg;
       resizeState =
         cornerSideCheck && cornerTopBottmoCheck
           ? ResizeState.UpperLeft
@@ -106,13 +107,13 @@ function onMouseMove(e: MouseEvent) {
       (sideCheck && cornerTopBottmoCheckInv) ||
       (cornerSideCheck && topBotCheckInv)
     ) {
-      desktopState.activeCursor = Win95Cursor.cornerResizePos;
+      desktop.cursor = Win95Cursor.cornerResizePos;
       resizeState =
         cornerSideCheckInv && cornerTopBottmoCheck
           ? ResizeState.UpperRight
           : ResizeState.BottomLeft;
     } else {
-      desktopState.activeCursor = Win95Cursor.default;
+      desktop.cursor = Win95Cursor.default;
       resizeState = ResizeState.None;
     }
   }
@@ -130,13 +131,13 @@ function onMouseCornerOver(e: MouseEvent) {
   e.stopPropagation();
 }
 function onWindowLeave(e: MouseEvent) {
-  desktopState.activeCursor = Win95Cursor.default;
+  desktop.cursor = Win95Cursor.default;
 }
 
 var prevMousePos: DesktopPoint = { x: 0, y: 0 };
 function onMouseDown(e: MouseEvent) {
-  desktopState.taskbar.activeApp = props.id;
-  desktopState.moveFront(props.id);
+  desktop.activeApp = props.id;
+  windows.moveFront(props.id);
 
   if (resizeState != ResizeState.None) {
     isResizing.value = true;
@@ -148,7 +149,6 @@ function onMouseDown(e: MouseEvent) {
 }
 
 function onDraggableMouseDown() {
-  console.log("Starting drag");
   isResizing.value = false;
   isDragged.value = true;
 }
@@ -263,8 +263,8 @@ function onMaximizeButton(e: MouseEvent) {
 
     myPosition.value = { x: 0, y: 0 };
     mySize.value = {
-      width: desktopState.desktop.size.width + 1,
-      height: desktopState.desktop.size.height + 1,
+      width: desktop.size.width + 1,
+      height: desktop.size.height + 1,
     };
   } else {
     isMaximized.value = false;
@@ -273,7 +273,7 @@ function onMaximizeButton(e: MouseEvent) {
     mySize.value = beforeMaximizeState.size;
   }
 
-  if (props.onMaximizeClb) props.onMaximizeClb();
+  apps.apps[props.id].onMaximizeClb();
 }
 
 function onMinimizeButton(e: MouseEvent) {
@@ -281,7 +281,7 @@ function onMinimizeButton(e: MouseEvent) {
 
   //
 
-  if (props.onMinimizeClb) return props.onMinimizeClb();
+  apps.apps[props.id].onMinimizeClb();
 }
 
 function onCloseButton(e: MouseEvent) {
@@ -289,7 +289,7 @@ function onCloseButton(e: MouseEvent) {
 
   //
 
-  if (props.onCloseClb) return props.onCloseClb();
+  apps.apps[props.id].onCloseClb();
 }
 
 function preventMouseDown(e: MouseEvent) {
@@ -310,26 +310,26 @@ onUnmounted(() => {
   document.removeEventListener("mousemove", onGlobalMouseMove);
 });
 
-desktopState.$subscribe(() => {
+desktop.$subscribe(() => {
   if (!isMaximized.value) return;
 
   mySize.value = {
-    width: desktopState.desktop.size.width + 1,
-    height: desktopState.desktop.size.height + 1,
+    width: desktop.size.width + 1,
+    height: desktop.size.height + 1,
   };
 });
 </script>
 
 <template>
   <div
-    v-if="props.isVisible"
+    v-if="windows.oppened.includes(props.id)"
     class="win95-window-holder"
     :style="{
       left: `${myPosition.x}px`,
       top: `${myPosition.y}px`,
       width: `${mySize.width}px`,
       height: `${mySize.height}px`,
-      zIndex: desktopState.desktop.oppenedWindows.indexOf(props.id) * 10 + 10,
+      zIndex: windows.oppened.indexOf(props.id) * 10 + 10,
     }"
     @mousemove="onMouseMove"
     @mousedown="onMouseDown"
@@ -340,15 +340,17 @@ desktopState.$subscribe(() => {
       class="window-upper-bar"
       @mousedown="onDraggableMouseDown"
       :style="{
-        background:
-          desktopState.taskbar.activeApp == props.id ? `#0000a8` : `#87888f`,
+        background: desktop.activeApp == props.id ? `#0000a8` : `#87888f`,
       }"
     >
       <div
+        v-if="apps.apps[props.id].icon"
         class="window-icon"
-        :style="{ backgroundImage: `url(${props.icon})` }"
+        :style="{ backgroundImage: `url(${apps.apps[props.id].icon})` }"
       />
-      <div class="window-name">{{ props.title }}</div>
+      <div v-if="apps.apps[props.id].title" class="window-name">
+        {{ apps.apps[props.id].title }}
+      </div>
       <div class="v-spacer"></div>
       <div
         class="window-button win95-button"
@@ -402,8 +404,7 @@ desktopState.$subscribe(() => {
             class="widnow-resize-corner"
             @mousemove="onMouseCornerOver"
             :style="{
-              zIndex:
-                desktopState.desktop.oppenedWindows.indexOf(props.id) * 10 + 11,
+              zIndex: windows.oppened.indexOf(props.id) * 10 + 11,
             }"
           ></div>
         </div>

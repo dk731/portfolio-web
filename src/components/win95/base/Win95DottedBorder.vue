@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { DesktopPoint } from "@/stores/Win95DesktopState";
-import type { StyleValue } from "vue";
 
 const props = withDefaults(
   defineProps<{

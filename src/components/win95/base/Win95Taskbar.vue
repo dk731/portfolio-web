@@ -1,17 +1,19 @@
 <script setup lang="ts">
-import { useDesktopApps } from "@/stores/Win95DesktopApps";
+import { useAppsState } from "@/stores/Win95AppsState";
 import { useDesktopState } from "@/stores/Win95DesktopState";
+import { useTaskbarState } from "@/stores/Win95TaskbarState";
 import moment from "moment";
 import { ref } from "vue";
 
-const desktopState = useDesktopState();
-const desktopApps = useDesktopApps();
+const desktop = useDesktopState();
+const taskbar = useTaskbarState();
+const apps = useAppsState();
 
 const currentTime = ref<moment.Moment>(moment());
 setInterval(() => (currentTime.value = moment()), 1000);
 
-function onFocusClick(app: string) {
-  desktopApps.apps[app].onFocusClb();
+function onFocusClick(appId: string) {
+  apps.apps[appId].onFocusClb();
 }
 </script>
 
@@ -21,20 +23,20 @@ function onFocusClick(app: string) {
     <div class="taskbar-icons-wrapper">
       <div class="taskbar-icons-holder">
         <div
-          v-for="app in desktopState.taskbar.taskbarApps"
+          v-for="appId in taskbar.apps"
           :class="`taskbar-app win95-button ${
-            desktopState.taskbar.activeApp == app ? 'active-application' : ''
+            desktop.activeApp == appId ? 'active-application' : ''
           }`"
-          @click="onFocusClick(app)"
+          @click="onFocusClick(appId)"
         >
           <div
-            v-if="desktopApps.apps[app].icon"
+            v-if="apps.apps[appId].icon"
             class="taskbar-task-icon"
             draggable="false"
-            :style="{ backgroundImage: `url(${desktopApps.apps[app].icon})` }"
+            :style="{ backgroundImage: `url(${apps.apps[appId].icon})` }"
           />
-          <div v-if="desktopApps.apps[app].title" class="taskbar-task-title">
-            {{ desktopApps.apps[app].title }}
+          <div v-if="apps.apps[appId].title" class="taskbar-task-title">
+            {{ apps.apps[appId].title }}
           </div>
         </div>
       </div>

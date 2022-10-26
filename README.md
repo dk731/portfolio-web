@@ -2,6 +2,14 @@
 
 # LIVE VERSION IS AVAILABLE AT: [qwe.me](https://qwe.me/)
 
+# TODO:
+
+- Implement explorer application
+- Implement minesweeper application
+- Add shortcur to the desktop for blog page
+- Add Windows95 initialization sequence
+- Fill 'About Me' with portfolio data
+
 # portfolio-web
 
 This template should help get you started developing with Vue 3 in Vite.

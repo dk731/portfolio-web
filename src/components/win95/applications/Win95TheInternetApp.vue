@@ -4,10 +4,10 @@ import Win95Application from "../base/Win95DesktopApplication.vue";
 
 <template>
   <Win95Application
-    :id="`about-me-app`"
-    :icon="`images/win95/computer_explorer-4.png`"
-    :title="`About Me`"
-    :init-icon="{ position: { x: 10, y: 20 } }"
+    :id="`the-internet-app`"
+    :icon="`images/win95/the-internet.png`"
+    :title="`The Internet`"
+    :init-icon="{ position: { x: 10, y: 140 } }"
     :init-window="{
       position: { x: 50, y: 50 },
       size: { width: 300, height: 150 },

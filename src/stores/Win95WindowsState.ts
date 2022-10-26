@@ -10,6 +10,7 @@ export const useWindowsState = defineStore("win95-windows", {
   state: () =>
     ({
       oppened: [],
+      minimized: [],
     } as DesktopWindowsState),
   actions: {
     moveFront(app: string) {

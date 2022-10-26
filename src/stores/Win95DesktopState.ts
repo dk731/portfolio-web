@@ -21,6 +21,7 @@ type DesktopState = {
   activeApp?: string;
   size: DesktopSize;
   cursor: Win95Cursor;
+  runningApps: string[]; // Array of app ids
 };
 
 export const useDesktopState = defineStore("win95-desktop-state", {
@@ -28,6 +29,22 @@ export const useDesktopState = defineStore("win95-desktop-state", {
     ({
       size: { width: 0, height: 0 },
       cursor: Win95Cursor.default,
+      runningApps: [],
     } as DesktopState),
-  actions: {},
+  actions: {
+    add(appId: string) {
+      this.runningApps = [
+        ...this.runningApps.filter((el) => el != appId),
+        appId,
+      ];
+    },
+
+    remove(appId: string) {
+      this.runningApps = this.runningApps.filter((el) => el != appId);
+    },
+
+    isRunning(appId: string) {
+      return this.runningApps.includes(appId);
+    },
+  },
 });

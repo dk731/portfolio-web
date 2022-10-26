@@ -12,21 +12,37 @@ import { useAppsState } from "@/stores/Win95AppsState";
 import { useDesktopSelectedIconsState } from "@/stores/Win95DesktopSelectedIconsState";
 import { useWindowsState } from "@/stores/Win95WindowsState";
 import { useTaskbarState } from "@/stores/Win95TaskbarState";
+import { useSlots } from "vue";
 
-const props = defineProps<{
-  id?: string;
-  icon: string;
-  title: string;
+const props = withDefaults(
+  defineProps<{
+    id?: string;
+    icon: string;
+    title: string;
 
-  initIcon: { position: DesktopPoint };
-  initWindow: { position: DesktopPoint; size: DesktopSize }; // Size of content
+    initIcon: { position: DesktopPoint };
+    initWindow: { position: DesktopPoint; size: DesktopSize }; // Size of content
 
-  onOpenClb?: () => void;
-  onCloseClb?: () => void;
-  onFocusClb?: () => void;
-  onMinimizeClb?: () => void;
-  onMaximizeClb?: () => void;
-}>();
+    isResizable?: boolean;
+    isDragabble?: boolean;
+
+    onOpenClb?: () => void;
+    onCloseClb?: () => void;
+    onFocusClb?: () => void;
+    onMinimizeClb?: () => void;
+    onMaximizeClb?: () => void;
+  }>(),
+  {
+    id: uuid4(),
+    isResizable: true,
+    isDragabble: true,
+    onOpenClb: () => {},
+    onCloseClb: () => {},
+    onFocusClb: () => {},
+    onMinimizeClb: () => {},
+    onMaximizeClb: () => {},
+  }
+);
 
 const myId = props.id ? props.id : uuid4();
 
@@ -35,10 +51,12 @@ const windows = useWindowsState();
 const desktop = useDesktopState();
 const apps = useAppsState();
 const desktopSelectedIcons = useDesktopSelectedIconsState();
+const slots = useSlots();
 
 function onOpenClb() {
   windows.add(myId);
   taskbar.add(myId);
+  desktop.add(myId);
   desktop.activeApp = myId;
 
   // Wait small amout of time to give some time to all selected
@@ -48,27 +66,29 @@ function onOpenClb() {
 function onCloseClb() {
   windows.remove(myId);
   taskbar.remove(myId);
+  desktop.remove(myId);
+
   desktop.focusedApp = myId;
 
   taskbar.apps = taskbar.apps.filter((el) => el != myId);
 
-  if (props.onCloseClb) props.onCloseClb();
+  props.onCloseClb();
 }
 function onMinimizeClb() {
   windows.remove(myId);
   if (desktop.activeApp == myId) desktop.activeApp = undefined;
 
-  if (props.onMinimizeClb) props.onMinimizeClb();
+  props.onMinimizeClb();
 }
 function onMaximizeClb() {
-  if (props.onMaximizeClb) props.onMaximizeClb();
+  props.onMaximizeClb();
 }
 function onFocusClb() {
   desktop.activeApp = myId;
   windows.moveFront(myId);
   desktopSelectedIcons.icons = [];
 
-  if (props.onFocusClb) props.onFocusClb();
+  props.onFocusClb();
 }
 
 apps.apps[myId] = {
@@ -93,14 +113,16 @@ apps.apps[myId] = {
     :id="myId"
     :initialPosition="props.initWindow.position"
     :initialSize="props.initWindow.size"
+    :is-resizable="props.isResizable"
+    :is-draggable="props.isDragabble"
   >
-    <template #content>
-      <slot name="content"></slot>
-    </template>
-    <template #toolbar>
+    <template v-if="slots['toolbar']" #toolbar>
       <slot name="toolbar"></slot>
     </template>
-    <template #bottom-bar>
+    <template v-if="slots['content']" #content>
+      <slot name="content"></slot>
+    </template>
+    <template v-if="slots['bottom-bar']" #bottom-bar>
       <slot name="bottom-bar"></slot>
     </template>
   </Win95Window>

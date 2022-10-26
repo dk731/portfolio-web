@@ -7,7 +7,6 @@ import {
 } from "@/stores/Win95DesktopState";
 import { onMounted, onUnmounted, ref, useSlots } from "vue";
 
-import { v4 as uuid4 } from "uuid";
 import { useTaskbarState } from "@/stores/Win95TaskbarState";
 import { useWindowsState } from "@/stores/Win95WindowsState";
 import { useAppsState, type AppMeta } from "@/stores/Win95AppsState";
@@ -28,6 +27,8 @@ const props = defineProps<{
   id: string;
   initialPosition: DesktopPoint;
   initialSize: DesktopSize;
+  isResizable: boolean;
+  isDraggable: boolean;
 }>();
 
 const slots = useSlots();
@@ -51,7 +52,12 @@ const isDragged = ref<boolean>(false);
 var resizeState: ResizeState = ResizeState.None;
 
 function onMouseMove(e: MouseEvent) {
-  if (!isResizing.value && !isDragged.value && !isMaximized.value) {
+  if (
+    !isResizing.value &&
+    !isDragged.value &&
+    !isMaximized.value &&
+    props.isResizable
+  ) {
     const el = windowRef.value.getBoundingClientRect();
 
     const relativePosition = {
@@ -149,8 +155,10 @@ function onMouseDown(e: MouseEvent) {
 }
 
 function onDraggableMouseDown() {
-  isResizing.value = false;
-  isDragged.value = true;
+  if (props.isDraggable) {
+    isResizing.value = false;
+    isDragged.value = true;
+  }
 }
 
 function resize(e: MouseEvent) {
@@ -253,6 +261,9 @@ var beforeMaximizeState = {
 function onMaximizeButton(e: MouseEvent) {
   e.stopPropagation();
 
+  desktop.activeApp = props.id;
+  windows.moveFront(props.id);
+
   if (!isMaximized.value) {
     isMaximized.value = true;
 
@@ -278,7 +289,8 @@ function onMaximizeButton(e: MouseEvent) {
 
 function onMinimizeButton(e: MouseEvent) {
   e.stopPropagation();
-
+  desktop.activeApp = props.id;
+  windows.moveFront(props.id);
   //
 
   apps.apps[props.id].onMinimizeClb();
@@ -286,8 +298,8 @@ function onMinimizeButton(e: MouseEvent) {
 
 function onCloseButton(e: MouseEvent) {
   e.stopPropagation();
-
-  //
+  desktop.activeApp = props.id;
+  windows.moveFront(props.id);
 
   apps.apps[props.id].onCloseClb();
 }
@@ -296,6 +308,7 @@ function preventMouseDown(e: MouseEvent) {
   e.stopPropagation();
 }
 
+// To determine proper window movement
 function onGlobalMouseMove(e: MouseEvent) {
   if (isResizing.value) resize(e);
   else if (isDragged.value) move(e);
@@ -322,7 +335,7 @@ desktop.$subscribe(() => {
 
 <template>
   <div
-    v-if="windows.oppened.includes(props.id)"
+    v-if="desktop.isRunning(props.id)"
     class="win95-window-holder"
     :style="{
       left: `${myPosition.x}px`,
@@ -330,12 +343,14 @@ desktop.$subscribe(() => {
       width: `${mySize.width}px`,
       height: `${mySize.height}px`,
       zIndex: windows.oppened.indexOf(props.id) * 10 + 10,
+      display: windows.oppened.includes(props.id) ? 'flex' : 'none',
     }"
     @mousemove="onMouseMove"
     @mousedown="onMouseDown"
     @mouseleave="onWindowLeave"
     ref="windowRef"
   >
+    <!-- <div class="window-overlay"></div> -->
     <div
       class="window-upper-bar"
       @mousedown="onDraggableMouseDown"
@@ -384,13 +399,13 @@ desktop.$subscribe(() => {
       />
     </div>
     <div class="window-content-holder">
-      <div class="window-toolbar-holder">
+      <div v-if="slots['toolbar']" class="window-toolbar-holder">
         <slot name="toolbar"></slot>
       </div>
-      <div class="window-content">
+      <div v-if="slots['content']" class="window-content">
         <slot name="content"></slot>
       </div>
-      <div class="window-bottom-bar">
+      <div v-if="slots['bottom-bar']" class="window-bottom-bar">
         <slot name="bottom-bar"></slot>
 
         <div
@@ -427,7 +442,7 @@ desktop.$subscribe(() => {
     inset 1px 1px 0px 1px #ffffff;
 }
 
-.win95-window-holder::before {
+.win95-window-holder:before {
   content: "";
   position: absolute;
   left: 0px;
@@ -439,6 +454,19 @@ desktop.$subscribe(() => {
   border: solid 1px #000000;
   border-left: none;
   border-top: none;
+}
+
+.window-overlay {
+  position: absolute;
+
+  left: 0px;
+  top: 0px;
+
+  width: 100%;
+  height: 100%;
+
+  /* pointer-events: ; */
+  z-index: 1000;
 }
 
 .window-upper-bar {
@@ -481,7 +509,7 @@ desktop.$subscribe(() => {
 
 .window-content-holder {
   position: relative;
-  width: 100%;
+
   flex-grow: 1;
 
   display: flex;
@@ -491,16 +519,15 @@ desktop.$subscribe(() => {
 .window-toolbar-holder {
   width: 100%;
   height: 20px;
-
-  background: red;
 }
 
 .window-content {
   position: relative;
-  width: 100%;
+
   flex-grow: 1;
 
-  background: green;
+  overflow: hidden;
+
   margin-bottom: 2px;
 }
 
@@ -511,8 +538,6 @@ desktop.$subscribe(() => {
 
   width: 100%;
   height: 16px;
-
-  background: aqua;
 }
 .window-resize-corner-holder {
   position: relative;

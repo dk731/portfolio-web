@@ -10,7 +10,6 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "dependencies": {
-    "js-dos": "^7.4.8",
     "moment": "^2.29.4",
     "pinia": "^2.0.21",
     "uuid": "^9.0.0",

@@ -509,9 +509,12 @@ desktop.$subscribe(() => {
 
 .window-content-holder {
   position: relative;
+  display: flex;
+  flex-direction: column;
 
   flex-grow: 1;
 
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
@@ -527,7 +530,6 @@ desktop.$subscribe(() => {
   flex-grow: 1;
 
   overflow: hidden;
-
   margin-bottom: 2px;
 }
 

@@ -12,6 +12,7 @@ import { useDesktopSelectState } from "@/stores/Win95DesktopSelectState";
 import Win95DoomApp from "./applications/Win95DoomApp.vue";
 import Win95TheInternetApp from "./applications/Win95TheInternetApp.vue";
 import Win95MinesweeperApp from "./applications/Win95MinesweeperApp.vue";
+import Win95DesktopRedirectIcon from "./base/Win95DesktopRedirectIcon.vue";
 
 const desktopSelect = useDesktopSelectState();
 const desktop = useDesktopState();
@@ -91,6 +92,18 @@ onUnmounted(() => {
       <Win95DoomApp></Win95DoomApp>
       <Win95TheInternetApp></Win95TheInternetApp>
       <Win95MinesweeperApp></Win95MinesweeperApp>
+      <Win95DesktopRedirectIcon
+        :icon="`images/GitHub-Mark-32px.png`"
+        :title="`Github`"
+        :url="`https://github.com/dk731`"
+        :init-icon="{ position: { x: 10, y: 260 } }"
+      ></Win95DesktopRedirectIcon>
+      <Win95DesktopRedirectIcon
+        :icon="`images/win95/camera-0.png`"
+        :title="`Blog`"
+        :url="`https://qwe.me/blog`"
+        :init-icon="{ position: { x: 10, y: 320 } }"
+      ></Win95DesktopRedirectIcon>
 
       <Win95DesktopUserSelect />
     </div>

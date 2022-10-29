@@ -1,5 +1,13 @@
 <script lang="ts" setup>
+import { useAppsState } from "@/stores/Win95AppsState";
+import { onMounted } from "vue";
 import Win95Application from "../base/Win95DesktopApplication.vue";
+
+const apps = useAppsState();
+
+onMounted(() => {
+  // apps.apps["about-me-app"].onOpenClb();
+});
 </script>
 
 <template>

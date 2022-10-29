@@ -125,6 +125,9 @@ apps.apps[myId] = {
     <template v-if="slots['bottom-bar']" #bottom-bar>
       <slot name="bottom-bar"></slot>
     </template>
+    <template #bottom-bar-corner>
+      <slot name="bottom-bar-corner"></slot>
+    </template>
   </Win95Window>
 </template>
 

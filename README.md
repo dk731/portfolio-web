@@ -8,6 +8,7 @@
 - Implement minesweeper application
 - Add shortcur to the desktop for blog page
 - Add Windows95 initialization sequence
+- Add touch support to all existing components
 - Fill 'About Me' with portfolio data
 
 # portfolio-web

@@ -12,6 +12,7 @@ const internetState = useInternerState();
 const pageRef = ref<any>(null);
 const pageStatus = ref<string>("");
 const showPage = ref<boolean>(false);
+const visibleUrl = ref<string>("");
 
 var isLoading: boolean = false;
 
@@ -29,6 +30,7 @@ function loadPage(newUrl: string) {
   if (internetState.activeUrl == newUrl)
     pageRef.value.src = internetState.activeUrl;
 
+  visibleUrl.value = newUrl;
   internetState.activeUrl = newUrl;
   isLoading = true;
   pageStatus.value = `Loading: ${internetState.activeUrl} ...`;
@@ -41,12 +43,6 @@ function onBackClick() {
   if (internetState.activeUrl)
     internetState.forwardHistory.push(internetState.activeUrl);
 
-  console.log("Back url: ", newUrl);
-  console.log(
-    "States: ",
-    internetState.backHistory,
-    internetState.forwardHistory
-  );
   loadPage(newUrl);
 }
 
@@ -57,12 +53,6 @@ function onForwardClick() {
   if (internetState.activeUrl)
     internetState.backHistory.push(internetState.activeUrl);
 
-  console.log("Forward url: ", newUrl);
-  console.log(
-    "States: ",
-    internetState.backHistory,
-    internetState.forwardHistory
-  );
   loadPage(newUrl);
 }
 
@@ -86,7 +76,10 @@ function onHomeClick() {
 }
 
 function onSearchClick() {
-  console.log("search");
+  if (internetState.activeUrl)
+    internetState.backHistory.push(internetState.activeUrl);
+  internetState.forwardHistory = [];
+  internetState.activeUrl = visibleUrl.value;
 }
 
 function onPrintClick() {
@@ -190,13 +183,14 @@ onMounted(() => {
         <div class="panel-resize"></div>
         <div class="address-str">Adress</div>
         <Win95EditableSelect
-          v-model="internetState.activeUrl"
+          v-model="visibleUrl"
           :options-list="[
-            'Test 1',
-            'Test 2',
+            'https://google.com/',
+            'https://qwe.me/',
             ...internetState.backHistory,
             ...internetState.forwardHistory,
           ]"
+          :on-submit-clb="onSearchClick"
         ></Win95EditableSelect>
         <div style="max-width: 42px; min-width: 42px; margin-left: 4px"></div>
         <div class="additional-address toolbar-border">
@@ -230,7 +224,8 @@ onMounted(() => {
 .internet-content {
   position: relative;
 
-  border: none;
+  border: solid #87888f 1px;
+  box-sizing: border-box;
   margin: 0;
   margin-top: 2px;
 
@@ -240,7 +235,7 @@ onMounted(() => {
   height: 100%;
   width: 100%;
 
-  z-index: -1;
+  z-index: 0;
 }
 
 .navigation-holder {
@@ -350,6 +345,7 @@ onMounted(() => {
 }
 
 .address-holder {
+  position: relative;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -360,6 +356,7 @@ onMounted(() => {
   width: 100%;
 
   transform: translate(0px, -1px);
+  z-index: 1;
 }
 
 .address-str {

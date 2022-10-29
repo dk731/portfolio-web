@@ -5,9 +5,9 @@ const props = withDefaults(
   defineProps<{
     modelValue?: string;
     optionsList?: string[];
-    onSubmitClb?: () => {};
+    onSubmitClb?: () => void;
   }>(),
-  { optionsList: [] as any, onSubmitClb: (() => {}) as any }
+  { optionsList: [] as any, onSubmitClb: () => {} }
 );
 
 const emit = defineEmits(["update:modelValue"]);
@@ -52,10 +52,10 @@ function onTextBlur(e: FocusEvent) {
 function onVariantClick(newValue: string) {
   emit("update:modelValue", newValue);
   dropDownVisible.value = false;
+  props.onSubmitClb();
 }
 
 function onInputChange(e: Event) {
-  console.log(e);
   emit("update:modelValue", (e.target as any).textContent);
 }
 </script>

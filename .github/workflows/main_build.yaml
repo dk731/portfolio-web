@@ -70,7 +70,7 @@ jobs:
           port: 22
           key: ${{ secrets.PRODUCTION_PPK }}
           source: ./dist/artifact.zip
-          target: ~/
+          target: ~/portfolio_artifact.zip
           strip_components: 2
           overwrite: true
 
@@ -81,4 +81,4 @@ jobs:
           username: ${{ secrets.PRODUCTION_USER }}
           port: 22
           key: ${{ secrets.PRODUCTION_PPK }}
-          script: ~/start_server.sh
+          script: ~/install_release.sh

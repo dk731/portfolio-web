@@ -98,6 +98,12 @@ onUnmounted(() => {
         :url="`https://github.com/dk731`"
         :init-icon="{ position: { x: 10, y: 260 } }"
       ></Win95DesktopRedirectIcon>
+      <Win95DesktopRedirectIcon
+        :icon="`images/win95/camera-0.png`"
+        :title="`Blog`"
+        :url="`https://qwe.me/blog`"
+        :init-icon="{ position: { x: 10, y: 320 } }"
+      ></Win95DesktopRedirectIcon>
 
       <Win95DesktopUserSelect />
     </div>

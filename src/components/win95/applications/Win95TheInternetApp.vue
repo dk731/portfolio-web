@@ -23,19 +23,33 @@ function onBackClick() {
   console.log("back");
 }
 
-function onForwardClick() {}
+function onForwardClick() {
+  console.log("forward");
+}
 
-function onStopClick() {}
+function onStopClick() {
+  console.log("stpop");
+}
 
-function onRefreshClick() {}
+function onRefreshClick() {
+  console.log("refresh");
+}
 
-function onHomeClick() {}
+function onHomeClick() {
+  console.log("home");
+}
 
-function onSearchClick() {}
+function onSearchClick() {
+  console.log("search");
+}
 
-function onPrintClick() {}
+function onPrintClick() {
+  console.log("print");
+}
 
-function onMailClick() {}
+function onMailClick() {
+  console.log("mail");
+}
 
 internetState.activeUrl = `https://qwe.me/`;
 
@@ -125,8 +139,12 @@ onMounted(() => {
       </div>
       <div class="address-holder toolbar-border">
         <div class="panel-resize"></div>
-        Adress:
+        <div class="address-str">Adress</div>
         <div></div>
+        <div class="additional-address">
+          <div class="panel-resize"></div>
+          <div class="address-str">Links</div>
+        </div>
       </div>
 
       <iframe
@@ -182,12 +200,14 @@ onMounted(() => {
 }
 
 .navigation-buttons {
+  top: 0px;
   display: flex;
   flex-direction: row;
   align-items: center;
 
   flex-grow: 1;
-  height: 100%;
+  height: calc(100% - 1px);
+  transform: translate(0px, 0.3px);
 }
 
 .toolbar-btn {
@@ -225,6 +245,7 @@ onMounted(() => {
   position: absolute;
   right: 0px;
 
+  max-width: 41px;
   min-width: 41px;
   min-height: 40px;
 
@@ -241,6 +262,26 @@ onMounted(() => {
   background-image: url("images/win95/explorer-icon.png");
 }
 
+.additional-address {
+  position: absolute;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  right: 0px;
+  height: 100%;
+
+  max-width: 42px;
+  min-width: 42px;
+  border-left: solid #87888f 1px;
+  box-sizing: border-box;
+}
+
+.additional-address > .panel-resize {
+  margin-left: 2px;
+  margin-right: 4px;
+}
+
 .address-holder {
   display: flex;
   flex-direction: row;
@@ -252,5 +293,10 @@ onMounted(() => {
   width: 100%;
 
   transform: translate(0px, -1px);
+}
+
+.address-str {
+  font-size: 12px;
+  transform: translate(0px, 1px);
 }
 </style>

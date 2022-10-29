@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 
 const props = withDefaults(
   defineProps<{
@@ -16,23 +16,49 @@ const props = withDefaults(
 );
 
 const isHover = ref<boolean>(false);
+const isPressed = ref<boolean>(false);
+var wasPressed = false;
 
 function onMouseEnter(e: MouseEvent) {
   if (props.disabled) return;
+  if (wasPressed) isPressed.value = true;
+
   isHover.value = true;
 }
 
 function onMouseLeave(e: MouseEvent) {
   if (props.disabled) return;
   isHover.value = false;
+  isPressed.value = false;
 }
+
+function onMouseDown(e: MouseEvent) {
+  isPressed.value = true;
+  wasPressed = true;
+}
+function onMouseUp(e: MouseEvent) {
+  if (isPressed.value) props.onClick();
+
+  isPressed.value = false;
+  wasPressed = false;
+}
+
+onMounted(() => {
+  window.addEventListener("mouseup", onMouseUp);
+});
+onUnmounted(() => {
+  window.removeEventListener("mouseup", onMouseUp);
+});
 </script>
 
 <template>
   <div
-    :class="`win95-widnow-icon-button ${isHover ? '' : 'grayscale'}`"
+    :class="`win95-widnow-icon-button ${isHover ? 'hovered' : 'grayscale'} ${
+      isPressed ? 'pressed' : ''
+    }`"
     @mouseenter="onMouseEnter"
     @mouseleave="onMouseLeave"
+    @mousedown="onMouseDown"
   >
     <div
       class="button-icon"
@@ -53,7 +79,15 @@ function onMouseLeave(e: MouseEvent) {
   justify-content: end;
 
   height: 100%;
-  width: 40px;
+  width: 50px;
+}
+
+.win95-widnow-icon-button.hovered.pressed {
+  box-shadow: inset 1px 1px #85898d, inset -1px -1px #ffffff;
+}
+
+.win95-widnow-icon-button.hovered {
+  box-shadow: inset 1px 1px #ffffff, inset -1px -1px #85898d;
 }
 
 .button-icon {

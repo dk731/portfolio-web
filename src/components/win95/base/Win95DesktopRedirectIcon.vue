@@ -2,9 +2,9 @@
 import { useAppsState } from "@/stores/Win95AppsState";
 import Win95DesktopIcon from "./Win95DesktopIcon.vue";
 import { v4 as uuid4 } from "uuid";
-import { useDesktopState, type DesktopPoint } from "@/stores/Win95DesktopState";
-import { useDesktopSelectState } from "@/stores/Win95DesktopSelectState";
+
 import { useDesktopSelectedIconsState } from "@/stores/Win95DesktopSelectedIconsState";
+import type { DesktopPoint } from "@/stores/Win95DesktopState";
 
 const props = withDefaults(
   defineProps<{
@@ -19,7 +19,7 @@ const props = withDefaults(
 
 const apps = useAppsState();
 const myId = uuid4();
-const desktop = useDesktopState();
+
 const desktopSelectIcon = useDesktopSelectedIconsState();
 
 function onOpenClb() {

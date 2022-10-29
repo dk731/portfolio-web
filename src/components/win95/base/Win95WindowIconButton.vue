@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, ref, watch } from "vue";
 
 const props = withDefaults(
   defineProps<{
@@ -42,6 +42,16 @@ function onMouseUp(e: MouseEvent) {
   isPressed.value = false;
   wasPressed = false;
 }
+
+watch(
+  () => props.disabled,
+  () => {
+    if (props.disabled) {
+      isHover.value = false;
+      isPressed.value = false;
+    }
+  }
+);
 
 onMounted(() => {
   window.addEventListener("mouseup", onMouseUp);

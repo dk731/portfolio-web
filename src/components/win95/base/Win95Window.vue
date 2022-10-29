@@ -415,6 +415,7 @@ desktop.$subscribe(() => {
             flexGrow: slots['bottom-bar'] == undefined ? 0 : 1,
           }"
         >
+          <slot name="bottom-bar-corner"></slot>
           <div
             class="widnow-resize-corner"
             @mousemove="onMouseCornerOver"
@@ -549,6 +550,7 @@ desktop.$subscribe(() => {
   width: 100%;
   height: 16px;
 }
+
 .window-resize-corner-holder {
   position: relative;
 
@@ -575,5 +577,18 @@ desktop.$subscribe(() => {
 
   margin-left: 1px;
   background-repeat: no-repeat;
+}
+</style>
+
+<style>
+.window-bottom-bar > * {
+  box-shadow: inset 0px 0px 0px 0px #c0c7c8, inset -1px -1px 0px 0px #ffffff,
+    inset 0px 0px 0px 1px #87888f;
+  margin-left: 2px;
+  height: 100%;
+}
+
+.window-bottom-bar > *:first-child {
+  margin-left: 0px;
 }
 </style>

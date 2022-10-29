@@ -5,13 +5,19 @@ import Win95Application from "../base/Win95DesktopApplication.vue";
 import { onMounted, ref } from "vue";
 import Win95WindowIconButton from "../base/Win95WindowIconButton.vue";
 import { useAppsState } from "@/stores/Win95AppsState";
+import Win95EditableSelect from "../base/Win95EditableSelect.vue";
 
 const apps = useAppsState();
 const internetState = useInternerState();
-const pageRef = ref(null);
+const pageRef = ref<any>(null);
+const pageStatus = ref<string>("");
+const showPage = ref<boolean>(false);
+
+var isLoading: boolean = false;
 
 function onPageLoad(e: Event) {
-  internetState.backHistory.push(internetState.activeUrl!);
+  pageStatus.value = "Ready";
+  isLoading = false;
 }
 
 function onApplicationClose() {
@@ -19,24 +25,64 @@ function onApplicationClose() {
   internetState.backHistory = [];
 }
 
+function loadPage(newUrl: string) {
+  if (internetState.activeUrl == newUrl)
+    pageRef.value.src = internetState.activeUrl;
+
+  internetState.activeUrl = newUrl;
+  isLoading = true;
+  pageStatus.value = `Loading: ${internetState.activeUrl} ...`;
+}
+
 function onBackClick() {
-  console.log("back");
+  const newUrl = internetState.backHistory.pop();
+  if (!newUrl) return;
+
+  if (internetState.activeUrl)
+    internetState.forwardHistory.push(internetState.activeUrl);
+
+  console.log("Back url: ", newUrl);
+  console.log(
+    "States: ",
+    internetState.backHistory,
+    internetState.forwardHistory
+  );
+  loadPage(newUrl);
 }
 
 function onForwardClick() {
-  console.log("forward");
+  const newUrl = internetState.forwardHistory.pop();
+  if (!newUrl) return;
+
+  if (internetState.activeUrl)
+    internetState.backHistory.push(internetState.activeUrl);
+
+  console.log("Forward url: ", newUrl);
+  console.log(
+    "States: ",
+    internetState.backHistory,
+    internetState.forwardHistory
+  );
+  loadPage(newUrl);
 }
 
 function onStopClick() {
-  console.log("stpop");
+  if (!isLoading) return;
+
+  pageStatus.value = `Stopped loading: ${internetState.activeUrl}`;
+  internetState.activeUrl = undefined;
 }
 
 function onRefreshClick() {
-  console.log("refresh");
+  if (internetState.activeUrl) loadPage(internetState.activeUrl);
 }
 
 function onHomeClick() {
-  console.log("home");
+  if (internetState.activeUrl)
+    internetState.backHistory.push(internetState.activeUrl);
+  internetState.forwardHistory = [];
+
+  loadPage("https://qwe.me/");
 }
 
 function onSearchClick() {
@@ -44,14 +90,17 @@ function onSearchClick() {
 }
 
 function onPrintClick() {
-  console.log("print");
+  try {
+    pageRef.value.contentWindow.print();
+  } catch {}
 }
 
 function onMailClick() {
   console.log("mail");
 }
 
-internetState.activeUrl = `https://qwe.me/`;
+loadPage(`http://localhost:5173/`);
+// loadPage(`https://qwe.me/`);
 
 onMounted(() => {
   apps.apps["the-internet-app"].onOpenClb();
@@ -86,13 +135,13 @@ onMounted(() => {
             :icon="`images/win95/back-icon.png`"
             :title="'Back'"
             :on-click="onBackClick"
-            :disabled="internetState.backHistory.length <= 1"
+            :disabled="internetState.backHistory.length == 0"
           ></Win95WindowIconButton>
           <Win95WindowIconButton
             :icon="`images/win95/forward-icon.png`"
             :title="'Forward'"
             :on-click="onForwardClick"
-            :disabled="internetState.forwardHistory.length <= 1"
+            :disabled="internetState.forwardHistory.length == 0"
           ></Win95WindowIconButton>
           <Win95WindowIconButton
             :icon="`images/win95/stop-icon.png`"
@@ -135,13 +184,22 @@ onMounted(() => {
             :on-click="onMailClick"
           ></Win95WindowIconButton>
         </div>
-        <div class="explorer-icon"></div>
+        <div class="explorer-icon toolbar-border"></div>
       </div>
       <div class="address-holder toolbar-border">
         <div class="panel-resize"></div>
         <div class="address-str">Adress</div>
-        <div></div>
-        <div class="additional-address">
+        <Win95EditableSelect
+          v-model="internetState.activeUrl"
+          :options-list="[
+            'Test 1',
+            'Test 2',
+            ...internetState.backHistory,
+            ...internetState.forwardHistory,
+          ]"
+        ></Win95EditableSelect>
+        <div style="max-width: 42px; min-width: 42px; margin-left: 4px"></div>
+        <div class="additional-address toolbar-border">
           <div class="panel-resize"></div>
           <div class="address-str">Links</div>
         </div>
@@ -157,7 +215,13 @@ onMounted(() => {
       </iframe>
     </template>
     <template #bottom-bar>
-      <div>123</div>
+      <div style="flex-grow: 5.5; position: relative">
+        <div class="page-status">{{ pageStatus }}</div>
+      </div>
+      <div style="flex-grow: 1.6"></div>
+    </template>
+    <template #bottom-bar-corner>
+      <div class="document-icon"></div>
     </template>
   </Win95Application>
 </template>
@@ -175,6 +239,8 @@ onMounted(() => {
 
   height: 100%;
   width: 100%;
+
+  z-index: -1;
 }
 
 .navigation-holder {
@@ -245,18 +311,17 @@ onMounted(() => {
   position: absolute;
   right: 0px;
 
-  max-width: 41px;
-  min-width: 41px;
-  min-height: 40px;
+  min-width: 44px;
+  min-height: 43px;
 
   background-color: black;
   background-repeat: no-repeat;
-  background-position: 4px 3px;
+  background-position: 50% 50%;
   background-size: 32px 32px;
   margin: 0px;
 
-  transform: translate(-1px, 0.5px);
-  border-left: solid #87888f 1px;
+  transform: translate(0px, 0px);
+
   box-sizing: border-box;
 
   background-image: url("images/win95/explorer-icon.png");
@@ -269,16 +334,18 @@ onMounted(() => {
   align-items: center;
 
   right: 0px;
+
   height: 100%;
 
   max-width: 42px;
-  min-width: 42px;
-  border-left: solid #87888f 1px;
+  min-width: 44px;
   box-sizing: border-box;
+
+  background: #c0c7c8;
 }
 
 .additional-address > .panel-resize {
-  margin-left: 2px;
+  margin-left: 4px;
   margin-right: 4px;
 }
 
@@ -298,5 +365,27 @@ onMounted(() => {
 .address-str {
   font-size: 12px;
   transform: translate(0px, 1px);
+  margin-right: 4px;
+}
+
+.document-icon {
+  background-image: url("images/win95/web_file-1.png");
+  margin-left: 1px;
+  width: 15px;
+  height: 15px;
+  background-size: 100%;
+}
+
+.page-status {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+
+  padding-left: 4px;
+  box-sizing: border-box;
+  font-size: 12px;
+
+  transform: translate(0px, 2px);
 }
 </style>

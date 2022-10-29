@@ -1,6 +1,9 @@
 #app {
-  width: 90vw;
-  height: 90vh;
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  bottom: 0px;
+  left: 0px;
 }
 
 body {

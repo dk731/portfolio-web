@@ -520,6 +520,14 @@ desktop.$subscribe(() => {
 }
 
 .window-toolbar-holder {
+  display: flex;
+  flex-direction: row;
+
+  padding-top: 5px;
+  padding-left: 8px;
+
+  box-sizing: border-box;
+
   width: 100%;
   height: 20px;
 }

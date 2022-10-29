@@ -4,24 +4,44 @@ import Win95Application from "../base/Win95DesktopApplication.vue";
 
 import { onMounted, ref } from "vue";
 import Win95WindowIconButton from "../base/Win95WindowIconButton.vue";
+import { useAppsState } from "@/stores/Win95AppsState";
 
+const apps = useAppsState();
 const internetState = useInternerState();
-
-const isValidPage = ref<boolean>(true);
-
-internetState.activeUrl = "https://google.com/";
+const pageRef = ref(null);
 
 function onPageLoad(e: Event) {
-  internetState.historyState.push(internetState.activeUrl!);
+  internetState.backHistory.push(internetState.activeUrl!);
 }
 
 function onApplicationClose() {
-  internetState.historyState = [];
+  internetState.forwardHistory = [];
+  internetState.backHistory = [];
 }
 
 function onBackClick() {
   console.log("back");
 }
+
+function onForwardClick() {}
+
+function onStopClick() {}
+
+function onRefreshClick() {}
+
+function onHomeClick() {}
+
+function onSearchClick() {}
+
+function onPrintClick() {}
+
+function onMailClick() {}
+
+internetState.activeUrl = `https://qwe.me/`;
+
+onMounted(() => {
+  apps.apps["the-internet-app"].onOpenClb();
+});
 </script>
 
 <template>
@@ -31,34 +51,87 @@ function onBackClick() {
     :title="`The Internet`"
     :init-icon="{ position: { x: 10, y: 140 } }"
     :init-window="{
-      position: { x: 50, y: 50 },
-      size: { width: 300, height: 150 },
+      position: { x: 10, y: 10 },
+      size: { width: 600, height: 400 },
     }"
     @close-clb="onApplicationClose"
   >
     <template #toolbar>
-      <div>123</div>
+      <div class="toolbar-btn">File</div>
+      <div class="toolbar-btn">Edit</div>
+      <div class="toolbar-btn">View</div>
+      <div class="toolbar-btn">Go</div>
+      <div class="toolbar-btn">Favorites</div>
+      <div class="toolbar-btn">Help</div>
     </template>
     <template #content>
-      <div class="navigation-buttons">
-        <Win95WindowIconButton
-          :icon="`images/win95/the-internet.png`"
-          :title="'BACL'"
-          :on-click="onBackClick"
-        ></Win95WindowIconButton>
+      <div class="navigation-holder toolbar-border">
+        <div class="panel-resize"></div>
+        <div class="navigation-buttons">
+          <Win95WindowIconButton
+            :icon="`images/win95/back-icon.png`"
+            :title="'Back'"
+            :on-click="onBackClick"
+            :disabled="true"
+          ></Win95WindowIconButton>
+          <Win95WindowIconButton
+            :icon="`images/win95/forward-icon.png`"
+            :title="'Forward'"
+            :on-click="onBackClick"
+          ></Win95WindowIconButton>
+          <Win95WindowIconButton
+            :icon="`images/win95/stop-icon.png`"
+            :title="'Stop'"
+            :on-click="onBackClick"
+          ></Win95WindowIconButton>
+          <Win95WindowIconButton
+            :icon="`images/win95/refresh-icon.png`"
+            :title="'Refresh'"
+            :on-click="onBackClick"
+          ></Win95WindowIconButton>
+          <Win95WindowIconButton
+            :icon="`images/win95/home-icon.png`"
+            :title="'Home'"
+            :on-click="onBackClick"
+          ></Win95WindowIconButton>
+          <Win95WindowIconButton
+            :icon="`images/win95/search-icon.png`"
+            :title="'Search'"
+            :on-click="onBackClick"
+          ></Win95WindowIconButton>
+          <Win95WindowIconButton
+            :icon="`images/win95/favorites-icon.png`"
+            :title="'Favorites'"
+            :on-click="onBackClick"
+          ></Win95WindowIconButton>
+          <Win95WindowIconButton
+            :icon="`images/win95/print-icon.png`"
+            :title="'Print'"
+            :on-click="onBackClick"
+          ></Win95WindowIconButton>
+          <Win95WindowIconButton
+            :icon="`images/win95/font-size-icon.png`"
+            :title="'Font'"
+            :on-click="onBackClick"
+          ></Win95WindowIconButton>
+          <Win95WindowIconButton
+            :icon="`images/win95/mail-icon.png`"
+            :title="'Mail'"
+            :on-click="onBackClick"
+          ></Win95WindowIconButton>
+        </div>
+        <div class="explorer-icon"></div>
       </div>
-      <div>123</div>
+      <div class="address-holder toolbar-border">Adress:</div>
+
       <iframe
-        v-if="internetState.activeUrl && isValidPage"
+        ref="pageRef"
+        v-if="internetState.activeUrl"
         @load="onPageLoad"
         class="internet-content"
         :src="internetState.activeUrl"
       >
-        <script type="text/javascript"></script>
       </iframe>
-      <div v-else-if="internetState.activeUrl && !isValidPage">
-        <div>This page could not be previewed :(</div>
-      </div>
     </template>
     <template #bottom-bar>
       <div>123</div>
@@ -81,10 +154,74 @@ function onBackClick() {
   width: 100%;
 }
 
+.navigation-holder {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+
+  height: 43px;
+  width: 100%;
+
+  padding: 1px;
+  box-sizing: border-box;
+
+  overflow-x: hidden;
+}
+
+.toolbar-border {
+  box-shadow: inset 0px 0px 0px 1px #87888f, inset 1px 1px 0px 1px #ffffff;
+}
+
+.navigation-holder * {
+  margin-right: 10px;
+}
+
 .navigation-buttons {
   display: flex;
   flex-direction: row;
-  height: 40px;
-  width: 100%;
+  align-items: center;
+
+  flex-grow: 1;
+  height: 100%;
+}
+
+.toolbar-btn {
+  font-size: 13px;
+  margin-right: 8px;
+}
+.toolbar-btn::first-letter {
+  text-decoration: underline;
+}
+
+.panel-resize {
+  margin-left: 4px;
+  margin-right: 10px;
+
+  height: calc(100% - 8px);
+  min-width: 4px;
+
+  box-sizing: border-box;
+
+  background-color: black;
+}
+
+.explorer-icon {
+  position: absolute;
+  right: 0px;
+
+  min-width: 41px;
+  min-height: 40px;
+
+  background-color: black;
+  background-repeat: no-repeat;
+  background-position: 4px 3px;
+  background-size: 32px 32px;
+  margin: 0px;
+
+  transform: translate(-1px, 0.5px);
+  border-left: solid #87888f 1px;
+  box-sizing: border-box;
+
+  background-image: url("images/win95/explorer-icon.png");
 }
 </style>

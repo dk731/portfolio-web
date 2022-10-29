@@ -72,57 +72,62 @@ onMounted(() => {
             :icon="`images/win95/back-icon.png`"
             :title="'Back'"
             :on-click="onBackClick"
-            :disabled="true"
+            :disabled="internetState.backHistory.length <= 1"
           ></Win95WindowIconButton>
           <Win95WindowIconButton
             :icon="`images/win95/forward-icon.png`"
             :title="'Forward'"
-            :on-click="onBackClick"
+            :on-click="onForwardClick"
+            :disabled="internetState.forwardHistory.length <= 1"
           ></Win95WindowIconButton>
           <Win95WindowIconButton
             :icon="`images/win95/stop-icon.png`"
             :title="'Stop'"
-            :on-click="onBackClick"
+            :on-click="onStopClick"
           ></Win95WindowIconButton>
           <Win95WindowIconButton
             :icon="`images/win95/refresh-icon.png`"
             :title="'Refresh'"
-            :on-click="onBackClick"
+            :on-click="onRefreshClick"
           ></Win95WindowIconButton>
           <Win95WindowIconButton
             :icon="`images/win95/home-icon.png`"
             :title="'Home'"
-            :on-click="onBackClick"
+            :on-click="onHomeClick"
           ></Win95WindowIconButton>
           <Win95WindowIconButton
             :icon="`images/win95/search-icon.png`"
             :title="'Search'"
-            :on-click="onBackClick"
+            :on-click="onSearchClick"
           ></Win95WindowIconButton>
           <Win95WindowIconButton
             :icon="`images/win95/favorites-icon.png`"
             :title="'Favorites'"
-            :on-click="onBackClick"
+            :disabled="true"
           ></Win95WindowIconButton>
           <Win95WindowIconButton
             :icon="`images/win95/print-icon.png`"
             :title="'Print'"
-            :on-click="onBackClick"
+            :on-click="onPrintClick"
           ></Win95WindowIconButton>
           <Win95WindowIconButton
             :icon="`images/win95/font-size-icon.png`"
             :title="'Font'"
-            :on-click="onBackClick"
+            :disabled="true"
           ></Win95WindowIconButton>
           <Win95WindowIconButton
             :icon="`images/win95/mail-icon.png`"
             :title="'Mail'"
-            :on-click="onBackClick"
+            :on-click="onMailClick"
           ></Win95WindowIconButton>
         </div>
         <div class="explorer-icon"></div>
       </div>
-      <div class="address-holder toolbar-border">Adress:</div>
+      <div class="address-holder toolbar-border">
+        <div class="panel-resize"></div>
+        Adress:
+        <div></div>
+      </div>
 
       <iframe
         ref="pageRef"
@@ -202,7 +207,18 @@ onMounted(() => {
 
   box-sizing: border-box;
 
-  background-color: black;
+  box-shadow: inset 1px 1px #ffffff, inset -1px -1px #85898d;
+
+  background-image: linear-gradient(
+    90deg,
+    #ffffff 25%,
+    #87888f 25%,
+    #87888f 50%,
+    #ffffff 50%,
+    #ffffff 75%,
+    #87888f 75%,
+    #87888f 100%
+  );
 }
 
 .explorer-icon {
@@ -223,5 +239,18 @@ onMounted(() => {
   box-sizing: border-box;
 
   background-image: url("images/win95/explorer-icon.png");
+}
+
+.address-holder {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 1px;
+  box-sizing: border-box;
+
+  height: 29px;
+  width: 100%;
+
+  transform: translate(0px, -1px);
 }
 </style>

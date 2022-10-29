@@ -1,23 +1,45 @@
 <script lang="ts" setup>
+import { ref } from "vue";
+
 const props = withDefaults(
   defineProps<{
     icon: string;
     title: string;
-    onClick: () => void;
+    onClick?: () => void;
 
     disabled?: boolean;
   }>(),
   {
-    disabled: true,
+    onClick: () => {},
+    disabled: false,
   }
 );
+
+const isHover = ref<boolean>(false);
+
+function onMouseEnter(e: MouseEvent) {
+  if (props.disabled) return;
+  isHover.value = true;
+}
+
+function onMouseLeave(e: MouseEvent) {
+  if (props.disabled) return;
+  isHover.value = false;
+}
 </script>
 
 <template>
-  <div class="win95-widnow-icon-button">
+  <div
+    :class="`win95-widnow-icon-button ${isHover ? '' : 'grayscale'}`"
+    @mouseenter="onMouseEnter"
+    @mouseleave="onMouseLeave"
+  >
     <div
       class="button-icon"
-      :style="{ backgroundImage: `url(${props.icon})`, filter: `grey` }"
+      :style="{
+        backgroundImage: `url(${props.icon})`,
+        opacity: props.disabled ? `0.3` : `1.0`,
+      }"
     ></div>
     <div class="button-title">{{ props.title }}</div>
   </div>
@@ -32,10 +54,6 @@ const props = withDefaults(
 
   height: 100%;
   width: 40px;
-
-  filter: gray;
-  -webkit-filter: grayscale(1);
-  filter: grayscale(1);
 }
 
 .button-icon {
@@ -51,9 +69,9 @@ const props = withDefaults(
   text-align: center;
 }
 
-.win95-widnow-icon-button:hover {
-  filter: none;
-  -webkit-filter: grayscale(0);
-  filter: grayscale(0);
+.grayscale {
+  filter: gray;
+  -webkit-filter: grayscale(1);
+  filter: grayscale(1);
 }
 </style>

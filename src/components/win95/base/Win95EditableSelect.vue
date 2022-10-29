@@ -139,7 +139,7 @@ function onInputChange(e: Event) {
   background-position: 0.5px 50%;
   margin-right: 1px;
 
-  background-image: url("images/win95/arrow-down.png");
+  background-image: url("/images/win95/arrow-down.png");
 
   box-shadow: inset 1px 1px #ffffff, 0.5px 0.5px 0 0.5px #000000,
     1px 1px #87888f, inset -1px -1px #85898d;

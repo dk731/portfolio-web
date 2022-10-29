@@ -319,7 +319,7 @@ onMounted(() => {
 
   box-sizing: border-box;
 
-  background-image: url("images/win95/explorer-icon.png");
+  background-image: url("/images/win95/explorer-icon.png");
 }
 
 .additional-address {
@@ -366,7 +366,7 @@ onMounted(() => {
 }
 
 .document-icon {
-  background-image: url("images/win95/web_file-1.png");
+  background-image: url("/images/win95/web_file-1.png");
   margin-left: 1px;
   width: 15px;
   height: 15px;

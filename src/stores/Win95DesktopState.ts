@@ -16,13 +16,21 @@ export enum Win95Font {
   bold = "win95-bold",
 }
 
+type DesktopStorageState = {
+  booted: boolean;
+};
+
 type DesktopState = {
   focusedApp?: string;
   activeApp?: string;
   size: DesktopSize;
   cursor: Win95Cursor;
   runningApps: string[]; // Array of app ids
+  storageState: DesktopStorageState;
 };
+
+const defaultState: DesktopStorageState = { booted: false };
+const currentState = localStorage.getItem("win95State");
 
 export const useDesktopState = defineStore("win95-desktop-state", {
   state: () =>
@@ -30,6 +38,7 @@ export const useDesktopState = defineStore("win95-desktop-state", {
       size: { width: 0, height: 0 },
       cursor: Win95Cursor.default,
       runningApps: [],
+      storageState: currentState ? JSON.parse(currentState) : defaultState,
     } as DesktopState),
   actions: {
     add(appId: string) {

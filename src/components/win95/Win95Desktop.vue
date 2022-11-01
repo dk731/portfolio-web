@@ -13,6 +13,7 @@ import Win95DoomApp from "./applications/Win95DoomApp.vue";
 import Win95TheInternetApp from "./applications/Win95TheInternetApp.vue";
 import Win95MinesweeperApp from "./applications/Win95MinesweeperApp.vue";
 import Win95DesktopRedirectIcon from "./base/Win95DesktopRedirectIcon.vue";
+import Win95BootScreen from "./Win95BootScreen.vue";
 
 const desktopSelect = useDesktopSelectState();
 const desktop = useDesktopState();
@@ -60,6 +61,8 @@ function onMouseUp(e: MouseEvent) {
 }
 
 function onWindowResize() {
+  if (!desktopRef.value) return;
+
   desktop.size = {
     width: desktopRef.value.clientWidth,
     height: desktopRef.value.clientHeight,
@@ -80,35 +83,40 @@ onUnmounted(() => {
 
 <template>
   <div class="win95-holder" :style="{ cursor: `url(${desktop.cursor}), auto` }">
-    <div
-      class="win95-desktop-holder"
-      @mousedown="onMouseDown"
-      @mousemove="onMouseMove"
-      ref="desktopRef"
-    >
-      <Win95StartApp></Win95StartApp>
+    <template v-if="desktop.storageState.booted">
+      <div
+        class="win95-desktop-holder"
+        @mousedown="onMouseDown"
+        @mousemove="onMouseMove"
+        ref="desktopRef"
+      >
+        <Win95StartApp></Win95StartApp>
 
-      <Win95AboutMeApp></Win95AboutMeApp>
-      <Win95DoomApp></Win95DoomApp>
-      <Win95TheInternetApp></Win95TheInternetApp>
-      <Win95MinesweeperApp></Win95MinesweeperApp>
-      <Win95DesktopRedirectIcon
-        :icon="`images/GitHub-Mark-32px.png`"
-        :title="`Github`"
-        :url="`https://github.com/dk731`"
-        :init-icon="{ position: { x: 10, y: 260 } }"
-      ></Win95DesktopRedirectIcon>
-      <Win95DesktopRedirectIcon
-        :icon="`images/win95/camera-0.png`"
-        :title="`Blog`"
-        :url="`https://qwe.me/blog`"
-        :init-icon="{ position: { x: 10, y: 320 } }"
-      ></Win95DesktopRedirectIcon>
+        <Win95AboutMeApp></Win95AboutMeApp>
+        <Win95DoomApp></Win95DoomApp>
+        <Win95TheInternetApp></Win95TheInternetApp>
+        <Win95MinesweeperApp></Win95MinesweeperApp>
+        <Win95DesktopRedirectIcon
+          :icon="`images/GitHub-Mark-32px.png`"
+          :title="`Github`"
+          :url="`https://github.com/dk731`"
+          :init-icon="{ position: { x: 10, y: 260 } }"
+        ></Win95DesktopRedirectIcon>
+        <Win95DesktopRedirectIcon
+          :icon="`images/win95/camera-0.png`"
+          :title="`Blog`"
+          :url="`https://qwe.me/blog`"
+          :init-icon="{ position: { x: 10, y: 320 } }"
+        ></Win95DesktopRedirectIcon>
 
-      <Win95DesktopUserSelect />
-    </div>
+        <Win95DesktopUserSelect />
+      </div>
 
-    <Win95Taskbar />
+      <Win95Taskbar />
+    </template>
+    <template v-else>
+      <Win95BootScreen></Win95BootScreen>
+    </template>
   </div>
 </template>
 

@@ -9,6 +9,7 @@ export enum Win95Cursor {
   topBotResize = "/cursors/Cursor_9.cur",
   cornerResizePos = "/cursors/Cursor_7.cur",
   cornerResizeNeg = "/cursors/Cursor_6.cur",
+  loading = "/cursors/Cursor_3.cur",
 }
 
 export enum Win95Font {

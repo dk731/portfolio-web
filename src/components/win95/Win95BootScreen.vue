@@ -1,13 +1,24 @@
 <script lang="ts" setup>
-import { useDesktopState } from "@/stores/Win95DesktopState";
+import { useDesktopState, Win95Cursor } from "@/stores/Win95DesktopState";
 import gsap from "gsap";
+import moment from "moment-timezone";
 import { onMounted, onUnmounted } from "vue";
 
 const dekstop = useDesktopState();
 
 const quickDataList: { line: number; key: string; value: string }[] = [
   { line: 3, key: "Name:", value: "DEMID" },
-  { line: 4, key: "Age:", value: "20" },
+  {
+    line: 4,
+    key: "Age:",
+    value: moment
+      .tz("Europe/Riga")
+      .diff(
+        moment.tz({ year: 2002, month: 6, day: 21 }, "Europe/Riga"),
+        "years"
+      )
+      .toString(),
+  },
   { line: 5, key: "Location:", value: "LATVIA / RIGA" },
   { line: 6, key: "Studying At:", value: "RTU" },
   { line: 7, key: "Pursuing Bachelors:", value: "EMBEDDED SYSTEMS" },
@@ -26,6 +37,8 @@ const quickDataList: { line: number; key: string; value: string }[] = [
 
 var cursorInterval: number;
 var activeCursor: Element | undefined;
+var bootFinished: boolean = false;
+var hasPressed: boolean = false;
 
 function updateCursor(cursorId: string) {
   const currentCursor = document.querySelector(`#${cursorId}`)!;
@@ -35,13 +48,31 @@ function updateCursor(cursorId: string) {
   prevCursor?.classList.remove("active");
 }
 
+async function onFinishClb() {
+  if (!bootFinished || hasPressed) return;
+
+  hasPressed = true;
+  dekstop.cursor = Win95Cursor.loading;
+  await new Promise((r) => setTimeout(r, 1000));
+  document.querySelector(".clear-canvas")?.classList.add("active");
+  await new Promise((r) => setTimeout(r, 1000));
+  new Audio("/sounds/startup_sound.wav").play();
+  await new Promise((r) => setTimeout(r, 1000));
+  setTimeout(() => (dekstop.cursor = Win95Cursor.default), 2500);
+  dekstop.storageState.booted = true;
+}
+
 onMounted(() => {
   const main_timeline = gsap.timeline({ paused: true });
+
+  document.addEventListener("keypress", onFinishClb);
+  document.addEventListener("touchstart", onFinishClb);
 
   cursorInterval = setInterval(() => {
     activeCursor?.classList.toggle("active");
   }, 200);
 
+  // main_timeline.timeScale(5);
   updateCursor("cursor1");
   main_timeline.to("#line1", {
     text: {
@@ -105,18 +136,21 @@ onMounted(() => {
   });
 
   main_timeline.play().then(() => {
-    console.log("Animation finished");
-    // dekstop.storageState.booted = true;
+    bootFinished = true;
   });
 });
 
 onUnmounted(() => {
   clearInterval(cursorInterval);
+
+  document.removeEventListener("keypress", onFinishClb);
+  document.removeEventListener("touchstart", onFinishClb);
 });
 </script>
 
 <template>
   <div class="win95-bootscreen-holder">
+    <div class="clear-canvas"></div>
     <pre id="boot-text">
 <span id="line1"/><div class="cursor" id="cursor1" />
 
@@ -152,13 +186,15 @@ onUnmounted(() => {
   line-height: 22px;
 }
 
-.tab {
-  display: inline-block;
-  margin-left: 40px;
-}
+.clear-canvas {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
 
-#boot-text {
-  /* font-family: win95-non-bold; */
+  background-color: #57a8a8;
+  opacity: 0;
 }
 
 .cursor {
@@ -170,7 +206,7 @@ onUnmounted(() => {
   opacity: 0;
 }
 
-.cursor.active {
+.active {
   opacity: 1;
 }
 </style>

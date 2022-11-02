@@ -133,8 +133,7 @@ onUnmounted(() => {
 
 .win95-holder {
   position: relative;
-  /* width: 800px1;
-  height: 600px; */
+
   width: 100%;
   height: 100%;
 

@@ -1,6 +1,6 @@
 {
   "name": "portfolio-web",
-  "version": "0.0.7",
+  "version": "1.0.0",
   "scripts": {
     "dev": "vite",
     "build": "run-p type-check build-only",
@@ -13,6 +13,7 @@
     "axios": "^1.1.3",
     "gsap": "^3.11.3",
     "moment": "^2.29.4",
+    "moment-timezone": "^0.5.38",
     "pinia": "^2.0.21",
     "uuid": "^9.0.0",
     "vue": "^3.2.38"

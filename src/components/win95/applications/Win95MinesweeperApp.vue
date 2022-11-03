@@ -1,10 +1,30 @@
 <script lang="ts" setup>
 import { useAppsState } from "@/stores/Win95AppsState";
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import Win95SegmentDisplay from "../base/Win95SegmentDisplay.vue";
 import Win95Application from "../base/Win95DesktopApplication.vue";
 
 const apps = useAppsState();
+
+enum IconState {
+  Default = "/images/win95/happy-smile.png",
+  Scream = "/images/win95/scream-smile.png",
+  Lose = "/images/win95/sad-smile.png",
+  Win = "/images/win95/swag-smile.png",
+}
+
+const iconState = ref<IconState>(IconState.Default);
+
+function onMouseDown(e: MouseEvent) {
+  iconState.value = IconState.Scream;
+}
+function onMouseUp(e: MouseEvent) {
+  iconState.value = IconState.Default;
+}
+
+function preventPropagation(e: MouseEvent) {
+  e.stopPropagation();
+}
 
 onMounted(() => {
   apps.apps["minesweeper-app"].onOpenClb();
@@ -29,13 +49,26 @@ onMounted(() => {
       <div class="toolbar-btn">Help</div>
     </template>
     <template #content>
-      <div class="game-holder">
+      <div
+        class="game-holder"
+        @mousedown="onMouseDown"
+        @mouseup="onMouseUp"
+        @mouseleave="onMouseUp"
+      >
         <div class="score-holder">
           <Win95SegmentDisplay
             :segments="3"
             :value="`123`"
           ></Win95SegmentDisplay>
-          123
+          <div class="v-spacer" />
+          <div
+            class="reset-button win95-button"
+            :style="{
+              backgroundImage: `url(${iconState})`,
+            }"
+            @mousedown="preventPropagation"
+          ></div>
+          <div class="v-spacer" />
           <Win95SegmentDisplay :segments="3" :value="`8`"></Win95SegmentDisplay>
         </div>
         <div class="game-field"></div>
@@ -85,5 +118,27 @@ onMounted(() => {
 }
 .toolbar-btn::first-letter {
   text-decoration: underline;
+}
+
+.reset-button {
+  position: relative;
+  width: 22px;
+  height: 22px;
+
+  background-position: center;
+  background-size: 100%;
+
+  transform: translate(-1px, 0px);
+}
+
+.reset-button:before {
+  content: "";
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  right: -1px;
+  bottom: -1px;
+
+  box-shadow: 1px 1px #85898d, -1px -1px #85898d;
 }
 </style>

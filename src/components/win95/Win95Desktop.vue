@@ -177,10 +177,12 @@ onUnmounted(() => {
 .win95-button.disabled:after {
   content: "";
   position: absolute;
-  left: 0px;
-  top: 0px;
-  width: 100%;
-  height: 100%;
+
+  left: 1px;
+  top: 1px;
+  right: 1px;
+  bottom: 1px;
+
   background-color: #c0c7c8;
   opacity: 0.6;
 }

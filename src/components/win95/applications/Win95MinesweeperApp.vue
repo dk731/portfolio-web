@@ -22,8 +22,20 @@ onMounted(() => {
     }"
     :is-maximizable="false"
   >
+    <template #toolbar>
+      <div class="toolbar-btn">Game</div>
+      <div class="toolbar-btn">Help</div>
+    </template>
     <template #content>123</template>
   </Win95Application>
 </template>
 
-<style scoped></style>
+<style scoped>
+.toolbar-btn {
+  font-size: 13px;
+  margin-right: 8px;
+}
+.toolbar-btn::first-letter {
+  text-decoration: underline;
+}
+</style>

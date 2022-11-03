@@ -243,7 +243,7 @@ loadPage(`https://qwe.me/blog`);
   flex-direction: row;
   align-items: center;
 
-  height: 43px;
+  min-height: 43px;
   width: 100%;
 
   padding: 1px;

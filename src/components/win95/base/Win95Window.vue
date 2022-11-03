@@ -542,7 +542,7 @@ desktop.$subscribe(() => {
   box-sizing: border-box;
 
   width: 100%;
-  height: 20px;
+  min-height: 20px;
 }
 
 .window-content {

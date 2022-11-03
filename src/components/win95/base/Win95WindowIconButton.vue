@@ -101,8 +101,8 @@ onUnmounted(() => {
 }
 
 .button-icon {
-  width: 32px;
-  height: 32px;
+  min-width: 32px;
+  min-height: 32px;
 
   background-size: 100%;
 }

@@ -95,9 +95,9 @@ function onMailClick() {
 // loadPage(`http://localhost:5173/`);
 loadPage(`https://qwe.me/blog`);
 
-onMounted(() => {
-  apps.apps["the-internet-app"].onOpenClb();
-});
+// onMounted(() => {
+//   apps.apps["the-internet-app"].onOpenClb();
+// });
 </script>
 
 <template>
@@ -243,7 +243,7 @@ onMounted(() => {
   flex-direction: row;
   align-items: center;
 
-  height: 43px;
+  min-height: 43px;
   width: 100%;
 
   padding: 1px;

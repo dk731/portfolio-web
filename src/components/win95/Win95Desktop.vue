@@ -158,14 +158,33 @@ onUnmounted(() => {
 }
 
 .win95-button {
+  position: relative;
   box-shadow: inset 1px 1px #ffffff, 0.5px 0.5px 0 0.5px #000000,
     1px 1px #87888f, inset -1px -1px #85898d;
   background: #c0c7c8;
 }
 
 .win95-button:active {
-  box-shadow: 0.5px 0.5px 0 0.5px white, inset 1px 1px black,
+  box-shadow: 0.5px 0.5px 0 0.5px #ffffff, inset 1px 1px #000000,
     inset -1px -1px #c0c7c8, inset 2px 2px #85898d;
+}
+
+.win95-button.disabled:active {
+  box-shadow: inset 1px 1px #ffffff, 0.5px 0.5px 0 0.5px #000000,
+    1px 1px #87888f, inset -1px -1px #85898d;
+}
+
+.win95-button.disabled:after {
+  content: "";
+  position: absolute;
+
+  left: 1px;
+  top: 1px;
+  right: 1px;
+  bottom: 1px;
+
+  background-color: #c0c7c8;
+  opacity: 0.6;
 }
 
 .v-spacer {

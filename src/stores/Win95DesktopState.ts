@@ -30,7 +30,7 @@ type DesktopState = {
   storageState: DesktopStorageState;
 };
 
-const defaultState: DesktopStorageState = { booted: false };
+const defaultState: DesktopStorageState = { booted: true };
 const currentState = localStorage.getItem("win95State");
 
 export const useDesktopState = defineStore("win95-desktop-state", {

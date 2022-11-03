@@ -25,6 +25,7 @@ const props = withDefaults(
 
     isResizable?: boolean;
     isDragabble?: boolean;
+    isMaximizable?: boolean;
 
     onOpenClb?: () => void;
     onCloseClb?: () => void;
@@ -34,8 +35,11 @@ const props = withDefaults(
   }>(),
   {
     id: uuid4(),
+
     isResizable: true,
     isDragabble: true,
+    isMaximizable: true,
+
     onOpenClb: () => {},
     onCloseClb: () => {},
     onFocusClb: () => {},
@@ -114,6 +118,7 @@ apps.apps[myId] = {
     :initialPosition="props.initWindow.position"
     :initialSize="props.initWindow.size"
     :is-resizable="props.isResizable"
+    :is-maximizable="props.isMaximizable"
     :is-draggable="props.isDragabble"
   >
     <template v-if="slots['toolbar']" #toolbar>

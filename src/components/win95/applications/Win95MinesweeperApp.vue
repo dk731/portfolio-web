@@ -1,5 +1,13 @@
 <script lang="ts" setup>
+import { useAppsState } from "@/stores/Win95AppsState";
+import { onMounted } from "vue";
 import Win95Application from "../base/Win95DesktopApplication.vue";
+
+const apps = useAppsState();
+
+onMounted(() => {
+  apps.apps["minesweeper-app"].onOpenClb();
+});
 </script>
 
 <template>
@@ -10,8 +18,9 @@ import Win95Application from "../base/Win95DesktopApplication.vue";
     :init-icon="{ position: { x: 10, y: 200 } }"
     :init-window="{
       position: { x: 50, y: 50 },
-      size: { width: 300, height: 150 },
+      size: { width: 157, height: 238 },
     }"
+    :is-maximizable="false"
   >
     <template #content>123</template>
   </Win95Application>

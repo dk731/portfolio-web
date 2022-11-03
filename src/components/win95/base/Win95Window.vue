@@ -23,13 +23,22 @@ enum ResizeState {
   None,
 }
 
-const props = defineProps<{
-  id: string;
-  initialPosition: DesktopPoint;
-  initialSize: DesktopSize;
-  isResizable: boolean;
-  isDraggable: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    id: string;
+    initialPosition: DesktopPoint;
+    initialSize: DesktopSize;
+
+    isResizable?: boolean;
+    isDraggable?: boolean;
+    isMaximizable?: boolean;
+  }>(),
+  {
+    isResizable: true,
+    isDraggable: true,
+    isMaximizable: true,
+  }
+);
 
 const slots = useSlots();
 
@@ -259,6 +268,8 @@ var beforeMaximizeState = {
 };
 
 function onMaximizeButton(e: MouseEvent) {
+  if (!props.isMaximizable) return;
+
   e.stopPropagation();
 
   desktop.activeApp = props.id;
@@ -350,7 +361,6 @@ desktop.$subscribe(() => {
     @mouseleave="onWindowLeave"
     ref="windowRef"
   >
-    <!-- <div class="window-overlay"></div> -->
     <div
       class="window-upper-bar"
       @mousedown="onDraggableMouseDown"
@@ -377,7 +387,9 @@ desktop.$subscribe(() => {
         @click="onMinimizeButton"
       />
       <div
-        class="window-button win95-button"
+        :class="`window-button win95-button ${
+          props.isMaximizable || 'disabled'
+        }`"
         :style="{
           backgroundImage: `url(images/win95/maximize${
             isMaximized ? '1' : ''

@@ -95,9 +95,9 @@ function onMailClick() {
 // loadPage(`http://localhost:5173/`);
 loadPage(`https://qwe.me/blog`);
 
-onMounted(() => {
-  apps.apps["the-internet-app"].onOpenClb();
-});
+// onMounted(() => {
+//   apps.apps["the-internet-app"].onOpenClb();
+// });
 </script>
 
 <template>

@@ -69,7 +69,10 @@ onMounted(() => {
             @mousedown="preventPropagation"
           ></div>
           <div class="v-spacer" />
-          <Win95SegmentDisplay :segments="3" :value="`8`"></Win95SegmentDisplay>
+          <Win95SegmentDisplay
+            :segments="3"
+            :value="`-38`"
+          ></Win95SegmentDisplay>
         </div>
         <div class="game-field"></div>
       </div>

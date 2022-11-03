@@ -16,6 +16,7 @@ const SEGMENT_MAP = {
   8: ["a", "b", "c", "d", "e", "f", "g"],
   9: ["a", "b", "c", "d", "f", "g"],
   // Define letters?? (if needed)
+  "-": ["g"],
   UNDEFINED: ["a", "g", "d"],
 };
 

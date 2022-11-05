@@ -1,8 +1,12 @@
 <script lang="ts" setup>
-import { useDesktopState, Win95Cursor } from "@/stores/Win95DesktopState";
+import {
+  useDesktopState,
+  Win95Cursor,
+  type DesktopStorageState,
+} from "@/stores/Win95DesktopState";
 import gsap from "gsap";
 import moment from "moment-timezone";
-import { onMounted, onUnmounted } from "vue";
+import { defineSSRCustomElement, onMounted, onUnmounted } from "vue";
 
 const dekstop = useDesktopState();
 
@@ -39,6 +43,7 @@ var cursorInterval: number;
 var activeCursor: Element | undefined;
 var bootFinished: boolean = false;
 var hasPressed: boolean = false;
+var main_timeline: gsap.core.Timeline;
 
 function updateCursor(cursorId: string) {
   const currentCursor = document.querySelector(`#${cursorId}`)!;
@@ -51,6 +56,11 @@ function updateCursor(cursorId: string) {
 async function onFinishClb() {
   if (!bootFinished || hasPressed) return;
 
+  localStorage.setItem(
+    "win95State",
+    JSON.stringify({ booted: true } as DesktopStorageState)
+  );
+
   hasPressed = true;
   dekstop.cursor = Win95Cursor.loading;
   await new Promise((r) => setTimeout(r, 1000));
@@ -58,28 +68,24 @@ async function onFinishClb() {
   await new Promise((r) => setTimeout(r, 1000));
   new Audio("/sounds/startup_sound.wav").play();
   await new Promise((r) => setTimeout(r, 1000));
-  setTimeout(() => (dekstop.cursor = Win95Cursor.default), 2500);
+  setTimeout(() => (dekstop.cursor = Win95Cursor.default), 2000);
   dekstop.storageState.booted = true;
 }
 
-onMounted(() => {
-  const main_timeline = gsap.timeline({ paused: true });
+function playBootSequence() {
+  main_timeline = gsap.timeline({ paused: true });
+
+  // main_timeline.timeScale(10);
 
   document.addEventListener("keypress", onFinishClb);
   document.addEventListener("touchstart", onFinishClb);
 
-  cursorInterval = setInterval(() => {
-    activeCursor?.classList.toggle("active");
-  }, 200);
-
-  // main_timeline.timeScale(5);
-  updateCursor("cursor1");
   main_timeline.to("#line1", {
     text: {
       value: "Starting Portfolio...",
     },
-    duration: 1.5,
-    delay: 2,
+    duration: 0.8,
+    delay: 0.8,
     ease: "none",
   });
 
@@ -87,8 +93,8 @@ onMounted(() => {
     text: {
       value: "Quick ABOUTME:",
     },
-    duration: 1,
-    delay: 1,
+    duration: 0.5,
+    delay: 0.4,
     ease: "none",
     onStart: () => updateCursor("cursor2"),
   });
@@ -99,8 +105,8 @@ onMounted(() => {
         text: {
           value: animate_frame.key,
         },
-        duration: 0.6,
-        delay: i == 0 ? 1 : 0.3,
+        duration: 0.2,
+        delay: i == 0 ? 0.3 : 0.1,
         ease: "none",
         onStart: () => updateCursor(`cursor${animate_frame.line}`),
       })
@@ -108,8 +114,8 @@ onMounted(() => {
         text: {
           value: animate_frame.value,
         },
-        duration: 0.6,
-        delay: 0.6,
+        duration: 0.4,
+        delay: 0.3,
         ease: "none",
         onStart: () => updateCursor(`cursor${animate_frame.line}_1`),
       });
@@ -119,9 +125,9 @@ onMounted(() => {
     text: {
       value: "Boot sequence finished",
     },
-    duration: 1,
+    duration: 0.8,
     ease: "none",
-    delay: 1.5,
+    delay: 0.8,
     onStart: () => updateCursor(`cursor11`),
   });
 
@@ -129,8 +135,8 @@ onMounted(() => {
     text: {
       value: "Press a key to continue",
     },
-    duration: 1,
-    delay: 1,
+    duration: 0.6,
+    delay: 0.6,
     ease: "none",
     onStart: () => updateCursor(`cursor12`),
   });
@@ -138,6 +144,22 @@ onMounted(() => {
   main_timeline.play().then(() => {
     bootFinished = true;
   });
+}
+
+dekstop.$subscribe(() => {
+  if (dekstop.needBoot && !main_timeline?.isActive()) playBootSequence();
+});
+
+onMounted(() => {
+  cursorInterval = setInterval(() => {
+    activeCursor?.classList.toggle("active");
+  }, 200);
+  updateCursor("cursor1");
+
+  // Do not start boot sequence if no need
+  if (!dekstop.needBoot) return;
+
+  playBootSequence();
 });
 
 onUnmounted(() => {

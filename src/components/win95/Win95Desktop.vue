@@ -73,6 +73,11 @@ function onContext(e: MouseEvent) {
   e.preventDefault();
 }
 
+desktop.$subscribe(() => {
+  // Call resize event to update desktop store size value
+  if (desktop.storageState.booted) onWindowResize();
+});
+
 onMounted(() => {
   document.addEventListener("mouseup", onMouseUp);
   window.addEventListener("resize", onWindowResize);

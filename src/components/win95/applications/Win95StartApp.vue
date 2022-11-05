@@ -3,7 +3,7 @@ import { useAppsState } from "@/stores/Win95AppsState";
 import { useDesktopState } from "@/stores/Win95DesktopState";
 import { useTaskbarState } from "@/stores/Win95TaskbarState";
 import { useWindowsState } from "@/stores/Win95WindowsState";
-import { ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 import Win95ListButton from "../base/Win95ListButton.vue";
 import Win95Window from "../base/Win95Window.vue";
 
@@ -27,7 +27,13 @@ function onOpenClb() {
 }
 
 function onShutDownExecute() {
-  console.log("qwe");
+  desktop.needBoot = false;
+
+  localStorage.clear();
+
+  if (shutDownVariant.value == ShutDownVariant.Restart) location.reload();
+
+  desktop.storageState.booted = false;
 }
 
 function onShutdownClick() {
@@ -44,6 +50,10 @@ function onShutDownClose() {
 
   desktop.remove(windowId);
   windows.remove(windowId);
+}
+
+function onKeyDown(e: KeyboardEvent) {
+  if (e.key == "Escape") onShutDownClose();
 }
 
 function preventPropagation(e: MouseEvent) {
@@ -73,6 +83,13 @@ apps.apps[windowId] = {
 
 // Unshift taskbar record, so that it allways is first
 taskbar.apps.unshift(myId);
+
+onMounted(() => {
+  document.addEventListener("keydown", onKeyDown);
+});
+onUnmounted(() => {
+  document.removeEventListener("keydown", onKeyDown);
+});
 </script>
 
 <template>
@@ -92,6 +109,7 @@ taskbar.apps.unshift(myId);
   </div>
   <div v-if="isShutDown" class="shutdown-prompt">
     <Win95Window
+      v-if="isShutDown"
       :id="windowId"
       :initialPosition="{
         x: desktop.size.width / 2 - 175,
@@ -140,9 +158,9 @@ taskbar.apps.unshift(myId);
               class="win95-button submit-button"
               style="border: solid black 1px"
             >
-              <div class="button-text">Yes</div>
+              <div class="button-text" @mouseup="onShutDownExecute">Yes</div>
             </div>
-            <div class="win95-button submit-button">
+            <div class="win95-button submit-button" @mouseup="onShutDownClose">
               <div class="button-text">No</div>
             </div>
           </div>

@@ -102,11 +102,16 @@ function onFocusClick(appId: string) {
 }
 
 .special-icons-holder {
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+
   min-width: 80px;
   box-shadow: 0.5px 0.5px 0 0.5px #ffffff, inset 1px 1px #87888f;
   align-items: center;
   justify-content: center;
 
+  background: #bfc6c7;
   padding: 2px;
   padding-left: 3px;
   box-sizing: border-box;
@@ -139,11 +144,13 @@ function onFocusClick(appId: string) {
   align-items: center;
   padding: 3px;
   margin-right: 3px;
+  width: 160px;
 }
 
 .taskbar-app:first-child {
-  padding-right: 5px;
+  /* padding-right: 5px; */
   margin-right: 4px;
+  width: 45px;
 }
 
 .sound-icon {

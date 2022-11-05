@@ -28,23 +28,33 @@ type CellState = {
 const apps = useAppsState();
 
 var gameSize: DesktopSize = { width: 8, height: 8 };
-var minesCount = 1;
+var minesCount = 10;
 var firstMove = true;
+var timerInterval: number;
 
 const gameFieldRef = ref(null);
 
 const activeCell = ref<number>(-1);
 const iconState = ref<IconState>(IconState.Default);
+const gameTimer = ref<number>(0);
 
 const gameState = ref<CellState[]>([]);
 
 function onMouseDown(e: MouseEvent) {
-  if (e.button != 0) return;
+  if (
+    e.button != 0 ||
+    iconState.value == IconState.Lose ||
+    iconState.value == IconState.Win
+  )
+    return;
 
   iconState.value = IconState.Scream;
   updateActiveCell(e);
 }
 function onMouseUp(e: MouseEvent) {
+  if (iconState.value == IconState.Lose || iconState.value == IconState.Win)
+    return;
+
   iconState.value = IconState.Default;
 }
 
@@ -76,6 +86,7 @@ function getNeighboursIds(cellId: number) {
     for (let x = 0; x < 3; x++) {
       const currentInd = startInd + x + gameSize.width * y;
       if (
+        currentInd >= 0 &&
         Math.abs((currentInd % gameSize.width) - (cellId % gameSize.width)) <= 3
       )
         outNeighbours.push(currentInd);
@@ -86,33 +97,82 @@ function getNeighboursIds(cellId: number) {
 }
 
 function onCellMouseDown(e: MouseEvent, cell: CellState) {
-  if (e.button != 2 || cell.isOppened) return;
+  if (
+    e.button != 2 ||
+    cell.isOppened ||
+    iconState.value == IconState.Lose ||
+    iconState.value == IconState.Win
+  )
+    return;
 
   gameState.value[cell.index].markState = (cell.markState + 1) % 3;
 }
 
 function onCellMouseUp(e: MouseEvent, cell: CellState) {
-  if (e.button != 0 || cell.markState == MarkState.Flag || cell.isOppened)
+  if (
+    e.button != 0 ||
+    cell.markState == MarkState.Flag ||
+    cell.isOppened ||
+    iconState.value == IconState.Lose ||
+    iconState.value == IconState.Win
+  )
     return;
+  const myInd = cell.index;
 
   // Grantee that first move will not be game lose
   if (firstMove) {
     firstMove = false;
-    while (gameState.value[cell.index].value == -1) {
-      restartGame();
+    clearInterval(timerInterval);
+    gameTimer.value = 0;
+    while (true) {
+      const newGame = generateNewGame();
+      if (newGame[myInd].value != -1) {
+        gameState.value = newGame;
+        timerInterval = setInterval(() => (gameTimer.value += 1), 1000);
+        break;
+      }
     }
   }
 
-  cell.isOppened = true;
-  if (cell.value == 0)
-    getNeighboursIds(cell.index).forEach((el) => {
+  const newState = gameState.value[myInd];
+
+  newState.isOppened = true;
+
+  // Check if game ended
+  if (newState.value == -1) {
+    // Game over
+    iconState.value = IconState.Lose;
+    newState.value = -11;
+    clearInterval(timerInterval);
+    gameState.value
+      .filter((el) => el.value == -1)
+      .forEach((el) => (gameState.value[el.index].isOppened = true));
+  } else if (
+    gameState.value.filter((el) => el.value != -1 && !el.isOppened).length == 0
+  ) {
+    gameState.value
+      .filter((el) => el.value == -1)
+      .forEach((el) => (gameState.value[el.index].markState = MarkState.Flag));
+    clearInterval(timerInterval);
+    iconState.value = IconState.Win;
+  }
+  if (newState.value == 0)
+    getNeighboursIds(myInd).forEach((el) => {
       if (gameState.value[el]) onCellMouseUp(e, gameState.value[el]);
     });
 
-  gameState.value[cell.index] = cell;
+  gameState.value[myInd] = newState;
 }
 
-function restartGame() {
+function onRestartClick(e: MouseEvent) {
+  firstMove = true;
+  gameState.value = generateNewGame();
+  clearInterval(timerInterval);
+  gameTimer.value = 0;
+  iconState.value = IconState.Default;
+}
+
+function generateNewGame() {
   const newGameState: CellState[] = [];
 
   const cellsLength = gameSize.width * gameSize.height;
@@ -141,10 +201,12 @@ function restartGame() {
       markState: MarkState.Empty,
     });
 
-  gameState.value = newGameState;
+  return newGameState;
 }
 
-restartGame();
+function onOpenClb() {
+  onRestartClick(undefined as any);
+}
 
 onMounted(() => {
   apps.apps["minesweeper-app"].onOpenClb();
@@ -168,6 +230,7 @@ onUnmounted(() => {
     }"
     :is-resizable="false"
     :is-maximizable="false"
+    @open-clb="onOpenClb"
   >
     <template #toolbar>
       <div class="toolbar-btn">Game</div>
@@ -199,19 +262,12 @@ onUnmounted(() => {
               backgroundImage: `url(${iconState})`,
             }"
             @mousedown="preventPropagation"
-            @mouseup="restartGame"
+            @mouseup="onRestartClick"
           ></div>
           <div class="v-spacer" />
           <Win95SegmentDisplay
             :segments="3"
-            :value="
-              gameState
-                .reduce(
-                  (prev, el) => prev + (el.markState == MarkState.Flag ? 1 : 0),
-                  0
-                )
-                .toString()
-            "
+            :value="gameTimer.toString()"
           ></Win95SegmentDisplay>
         </div>
         <div class="game-field" ref="gameFieldRef" @mouseleave="onMouseLeave">
@@ -365,6 +421,10 @@ onUnmounted(() => {
 .cell-1 {
   background-size: 100%;
   background-image: url(/images/win95/mine.png);
+}
+
+.cell-11 {
+  background: url(/images/win95/mine.png) #ff0000;
 }
 
 .cell1 {

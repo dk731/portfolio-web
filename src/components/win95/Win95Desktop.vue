@@ -98,7 +98,7 @@ onUnmounted(() => {
         @mousemove="onMouseMove"
         ref="desktopRef"
       >
-        <!-- <Win95StartApp></Win95StartApp> -->
+        <Win95StartApp></Win95StartApp>
 
         <Win95AboutMeApp></Win95AboutMeApp>
         <Win95DoomApp></Win95DoomApp>

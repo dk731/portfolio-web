@@ -67,6 +67,7 @@ function onFocusClick(appId: string) {
   min-height: 28px;
 
   background-color: #c0c7c8;
+  z-index: 1000000;
 }
 
 .taskbar-icons-wrapper {

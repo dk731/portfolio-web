@@ -19,6 +19,7 @@ function onMouseLeave(e: MouseEvent) {
     class="win95-list-button"
     @mouseenter="onMouseEnter"
     @mouseleave="onMouseLeave"
+    @click="onClickClb"
   >
     <div
       class="icon-holder"

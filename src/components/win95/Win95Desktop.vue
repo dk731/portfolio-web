@@ -19,6 +19,7 @@ const desktopSelect = useDesktopSelectState();
 const desktop = useDesktopState();
 
 const desktopRef = ref(null as any);
+var updatedOnBoot = false;
 
 var prevPosition = { x: 0, y: 0 };
 function onMouseMove(e: MouseEvent) {
@@ -75,7 +76,10 @@ function onContext(e: MouseEvent) {
 
 desktop.$subscribe(() => {
   // Call resize event to update desktop store size value
-  if (desktop.storageState.booted) onWindowResize();
+  if (!updatedOnBoot && desktop.storageState.booted) {
+    updatedOnBoot = true;
+    onWindowResize();
+  }
 });
 
 onMounted(() => {

@@ -69,6 +69,10 @@ function onWindowResize() {
   };
 }
 
+function onContext(e: MouseEvent) {
+  e.preventDefault();
+}
+
 onMounted(() => {
   document.addEventListener("mouseup", onMouseUp);
   window.addEventListener("resize", onWindowResize);
@@ -82,7 +86,11 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="win95-holder" :style="{ cursor: `url(${desktop.cursor}), auto` }">
+  <div
+    class="win95-holder"
+    :style="{ cursor: `url(${desktop.cursor}), auto` }"
+    @contextmenu="onContext"
+  >
     <template v-if="desktop.storageState.booted">
       <div
         class="win95-desktop-holder"

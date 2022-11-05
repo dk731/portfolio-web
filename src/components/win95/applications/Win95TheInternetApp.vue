@@ -92,8 +92,8 @@ function onMailClick() {
   console.log("mail");
 }
 
-// loadPage(`http://localhost:5173/`);
-loadPage(`https://qwe.me/blog`);
+loadPage(`http://localhost:5173/`);
+// loadPage(`https://qwe.me/blog`);
 
 // onMounted(() => {
 //   apps.apps["the-internet-app"].onOpenClb();
@@ -232,7 +232,7 @@ loadPage(`https://qwe.me/blog`);
   left: 0px;
   top: 0px;
 
-  height: 100%;
+  height: calc(100% - 29px - 43px - 5px);
   width: 100%;
 
   z-index: 0;
@@ -368,8 +368,9 @@ loadPage(`https://qwe.me/blog`);
 .document-icon {
   background-image: url("/images/win95/web_file-1.png");
   margin-left: 1px;
-  width: 15px;
-  height: 15px;
+  width: 13px;
+  height: 13px;
+  transform: translate(0px, 1px);
   background-size: 100%;
 }
 

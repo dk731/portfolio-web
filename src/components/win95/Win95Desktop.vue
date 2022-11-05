@@ -69,6 +69,15 @@ function onWindowResize() {
   };
 }
 
+function onContext(e: MouseEvent) {
+  e.preventDefault();
+}
+
+desktop.$subscribe(() => {
+  // Call resize event to update desktop store size value
+  if (desktop.storageState.booted) onWindowResize();
+});
+
 onMounted(() => {
   document.addEventListener("mouseup", onMouseUp);
   window.addEventListener("resize", onWindowResize);
@@ -82,7 +91,11 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="win95-holder" :style="{ cursor: `url(${desktop.cursor}), auto` }">
+  <div
+    class="win95-holder"
+    :style="{ cursor: `url(${desktop.cursor}), auto` }"
+    @contextmenu="onContext"
+  >
     <template v-if="desktop.storageState.booted">
       <div
         class="win95-desktop-holder"
@@ -90,8 +103,6 @@ onUnmounted(() => {
         @mousemove="onMouseMove"
         ref="desktopRef"
       >
-        <Win95StartApp></Win95StartApp>
-
         <Win95AboutMeApp></Win95AboutMeApp>
         <Win95DoomApp></Win95DoomApp>
         <Win95TheInternetApp></Win95TheInternetApp>
@@ -112,6 +123,7 @@ onUnmounted(() => {
         <Win95DesktopUserSelect />
       </div>
 
+      <Win95StartApp></Win95StartApp>
       <Win95Taskbar />
     </template>
     <template v-else>

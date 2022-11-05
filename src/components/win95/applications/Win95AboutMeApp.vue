@@ -20,7 +20,6 @@ onMounted(() => {
       position: { x: 50, y: 50 },
       size: { width: 300, height: 150 },
     }"
-    :is-draggable="true"
   >
     <template #content>123</template>
   </Win95Application>

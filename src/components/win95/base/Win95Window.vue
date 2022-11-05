@@ -32,8 +32,15 @@ const props = withDefaults(
     isResizable?: boolean;
     isDraggable?: boolean;
     isMaximizable?: boolean;
+
+    minimizeVisible?: boolean;
+    maximizeVisible?: boolean;
+    closeVisible?: boolean;
   }>(),
   {
+    minimizeVisible: true,
+    maximizeVisible: true,
+    closeVisible: true,
     isResizable: true,
     isDraggable: true,
     isMaximizable: true,
@@ -378,6 +385,7 @@ desktop.$subscribe(() => {
       </div>
       <div class="v-spacer"></div>
       <div
+        v-if="props.minimizeVisible"
         class="window-button win95-button"
         :style="{
           backgroundImage: `url(images/win95/minimize-icon.png)`,
@@ -387,6 +395,7 @@ desktop.$subscribe(() => {
         @click="onMinimizeButton"
       />
       <div
+        v-if="props.maximizeVisible"
         :class="`window-button win95-button ${
           props.isMaximizable || 'disabled'
         }`"
@@ -401,6 +410,7 @@ desktop.$subscribe(() => {
         @click="onMaximizeButton"
       />
       <div
+        v-if="props.closeVisible"
         class="window-button win95-button"
         :style="{
           backgroundImage: `url(images/win95/close-icon.png)`,
@@ -526,6 +536,9 @@ desktop.$subscribe(() => {
   flex-direction: column;
 
   flex-grow: 1;
+
+  max-width: 100%;
+  max-height: 100%;
 
   overflow: hidden;
   display: flex;

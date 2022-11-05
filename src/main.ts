@@ -9,6 +9,7 @@ import "./assets/main.css";
 const app = createApp(App);
 
 gsap.registerPlugin(TextPlugin);
+gsap.config({ nullTargetWarn: false });
 
 app.use(createPinia());
 app.mount("#app");

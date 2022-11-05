@@ -67,6 +67,7 @@ function onFocusClick(appId: string) {
   min-height: 28px;
 
   background-color: #c0c7c8;
+  z-index: 1000000;
 }
 
 .taskbar-icons-wrapper {
@@ -101,11 +102,16 @@ function onFocusClick(appId: string) {
 }
 
 .special-icons-holder {
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+
   min-width: 80px;
   box-shadow: 0.5px 0.5px 0 0.5px #ffffff, inset 1px 1px #87888f;
   align-items: center;
   justify-content: center;
 
+  background: #bfc6c7;
   padding: 2px;
   padding-left: 3px;
   box-sizing: border-box;
@@ -118,8 +124,11 @@ function onFocusClick(appId: string) {
 .taskbar-task-icon {
   width: 16px;
   height: 16px;
+  min-width: 16px;
+  min-height: 16px;
   background-size: 100%;
   margin-right: 3px;
+  background-repeat: no-repeat;
 }
 
 .taskbar-task-title {
@@ -138,11 +147,13 @@ function onFocusClick(appId: string) {
   align-items: center;
   padding: 3px;
   margin-right: 3px;
+  width: 160px;
 }
 
 .taskbar-app:first-child {
-  padding-right: 5px;
+  /* padding-right: 5px; */
   margin-right: 4px;
+  width: 45px;
 }
 
 .sound-icon {

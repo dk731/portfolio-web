@@ -66,6 +66,7 @@ function onOpenClb() {
   // Wait small amout of time to give some time to all selected
   // apps to open and then clear selected icons array
   setTimeout(() => (desktopSelectedIcons.icons = []), 50);
+  props.onOpenClb();
 }
 function onCloseClb() {
   windows.remove(myId);

@@ -12,21 +12,31 @@ enum IconState {
   Win = "/images/win95/swag-smile.png",
 }
 
+enum MarkState {
+  Empty,
+  Flag,
+  Question,
+}
+
+type CellState = {
+  index: number;
+  value: number; // 0-8 -> neighbour mines, -1 -> is mine
+  isOppened: boolean;
+  markState: MarkState;
+};
+
 const apps = useAppsState();
 
 var gameSize: DesktopSize = { width: 8, height: 8 };
-var minesCount = 10;
+var minesCount = 1;
+var firstMove = true;
 
 const gameFieldRef = ref(null);
 
 const activeCell = ref<number>(-1);
 const iconState = ref<IconState>(IconState.Default);
-const oppenedCells = ref<Set<number>>(new Set());
-const flagCells = ref<Set<number>>(new Set());
-const questionCells = ref<Set<number>>(new Set());
 
-// Array where index is cell id, and value is neighbour bombs amount, if -1 than it is bomb
-const gameState = ref<number[]>([]);
+const gameState = ref<CellState[]>([]);
 
 function onMouseDown(e: MouseEvent) {
   if (e.button != 0) return;
@@ -75,34 +85,35 @@ function getNeighboursIds(cellId: number) {
   return outNeighbours;
 }
 
-function onCellMouseDown(e: MouseEvent, cellInd: number) {
-  if (e.button != 2) return;
+function onCellMouseDown(e: MouseEvent, cell: CellState) {
+  if (e.button != 2 || cell.isOppened) return;
 
-  if (flagCells.value.has(cellInd)) {
-    flagCells.value.delete(cellInd);
-    questionCells.value.add(cellInd);
-  } else if (questionCells.value.has(cellInd)) {
-    questionCells.value.delete(cellInd);
-  } else {
-    flagCells.value.add(cellInd);
-  }
+  gameState.value[cell.index].markState = (cell.markState + 1) % 3;
 }
 
-function onCellMouseUp(e: MouseEvent, cellId: number) {
-  if (
-    e.button != 0 ||
-    flagCells.value.has(cellId) ||
-    oppenedCells.value.has(cellId)
-  )
+function onCellMouseUp(e: MouseEvent, cell: CellState) {
+  if (e.button != 0 || cell.markState == MarkState.Flag || cell.isOppened)
     return;
 
-  oppenedCells.value.add(cellId);
-  if (gameState.value[cellId] == 0)
-    getNeighboursIds(cellId).forEach((el) => onCellMouseUp(e, el));
+  // Grantee that first move will not be game lose
+  if (firstMove) {
+    firstMove = false;
+    while (gameState.value[cell.index].value == -1) {
+      restartGame();
+    }
+  }
+
+  cell.isOppened = true;
+  if (cell.value == 0)
+    getNeighboursIds(cell.index).forEach((el) => {
+      if (gameState.value[el]) onCellMouseUp(e, gameState.value[el]);
+    });
+
+  gameState.value[cell.index] = cell;
 }
 
 function restartGame() {
-  const newGameState = [];
+  const newGameState: CellState[] = [];
 
   const cellsLength = gameSize.width * gameSize.height;
 
@@ -122,9 +133,14 @@ function restartGame() {
     );
   };
 
-  for (let i = 0; i < cellsLength; i++) newGameState.push(getCellValue(i));
+  for (let i = 0; i < cellsLength; i++)
+    newGameState.push({
+      index: i,
+      value: getCellValue(i),
+      isOppened: false,
+      markState: MarkState.Empty,
+    });
 
-  oppenedCells.value.clear();
   gameState.value = newGameState;
 }
 
@@ -166,7 +182,15 @@ onUnmounted(() => {
         <div class="score-holder">
           <Win95SegmentDisplay
             :segments="3"
-            :value="`123`"
+            :value="
+              (
+                minesCount -
+                gameState.reduce(
+                  (prev, el) => prev + (el.markState == MarkState.Flag ? 1 : 0),
+                  0
+                )
+              ).toString()
+            "
           ></Win95SegmentDisplay>
           <div class="v-spacer" />
           <div
@@ -180,27 +204,40 @@ onUnmounted(() => {
           <div class="v-spacer" />
           <Win95SegmentDisplay
             :segments="3"
-            :value="`-38`"
+            :value="
+              gameState
+                .reduce(
+                  (prev, el) => prev + (el.markState == MarkState.Flag ? 1 : 0),
+                  0
+                )
+                .toString()
+            "
           ></Win95SegmentDisplay>
         </div>
         <div class="game-field" ref="gameFieldRef" @mouseleave="onMouseLeave">
           <div
+            v-for="myState in gameState"
             :class="`field-cell ${
-              oppenedCells.has(i) || (activeCell == i && !flagCells.has(i))
+              myState.isOppened ||
+              (activeCell == myState.index &&
+                myState.markState != MarkState.Flag)
                 ? 'active'
                 : ''
-            } ${oppenedCells.has(i) ? `cell${gameState[i]}` : ''} ${
-              !oppenedCells.has(i) && flagCells.has(i) ? 'flag' : ''
+            } ${myState.isOppened ? `cell${myState.value}` : ''} ${
+              !myState.isOppened && myState.markState == MarkState.Flag
+                ? 'flag'
+                : ''
             } ${
-              !oppenedCells.has(i) && questionCells.has(i) ? 'question' : ''
+              !myState.isOppened && myState.markState == MarkState.Question
+                ? 'question'
+                : ''
             }`"
-            v-for="(_, i) in gameState"
-            @mousedown="(e) => onCellMouseDown(e, i)"
-            @mouseup="(e) => onCellMouseUp(e, i)"
+            @mousedown="(e) => onCellMouseDown(e, myState)"
+            @mouseup="(e) => onCellMouseUp(e, myState)"
           >
-            <template v-if="oppenedCells.has(i) && gameState[i] > 0">
+            <template v-if="myState.isOppened && myState.value > 0">
               <div class="cell-text">
-                {{ gameState[i] }}
+                {{ myState.value }}
               </div>
             </template>
           </div>

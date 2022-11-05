@@ -124,8 +124,11 @@ function onFocusClick(appId: string) {
 .taskbar-task-icon {
   width: 16px;
   height: 16px;
+  min-width: 16px;
+  min-height: 16px;
   background-size: 100%;
   margin-right: 3px;
+  background-repeat: no-repeat;
 }
 
 .taskbar-task-title {

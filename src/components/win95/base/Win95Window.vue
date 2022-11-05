@@ -527,6 +527,9 @@ desktop.$subscribe(() => {
 
   flex-grow: 1;
 
+  max-width: 100%;
+  max-height: 100%;
+
   overflow: hidden;
   display: flex;
   flex-direction: column;

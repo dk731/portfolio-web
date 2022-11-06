@@ -156,6 +156,7 @@ function onWindowLeave(e: MouseEvent) {
 
 var prevMousePos: DesktopPoint = { x: 0, y: 0 };
 function onMouseDown(e: MouseEvent) {
+  apps.apps[props.id].isToolbarActive = false;
   desktop.activeApp = props.id;
   windows.moveFront(props.id);
 
@@ -327,13 +328,34 @@ function onGlobalMouseMove(e: MouseEvent) {
   else if (isDragged.value) move(e);
 }
 
+function onGlobalMouseDown(e: MouseEvent) {
+  apps.apps[props.id].isToolbarActive = false;
+}
+
+var wasMouseUp = false;
+function toolbarMouseDown(e: MouseEvent) {
+  apps.apps[props.id].isToolbarActive = true;
+  wasMouseUp = false;
+  e.stopPropagation();
+}
+
+function toolbarMouseLeave(e: MouseEvent) {
+  if (!wasMouseUp) apps.apps[props.id].isToolbarActive = false;
+}
+
+function toolbarMouseUp(e: MouseEvent) {
+  var wasMouseUp = true;
+}
+
 onMounted(() => {
   document.addEventListener("mouseup", onMouseUp);
   document.addEventListener("mousemove", onGlobalMouseMove);
+  document.addEventListener("mousedown", onGlobalMouseDown);
 });
 onUnmounted(() => {
   document.removeEventListener("mouseup", onMouseUp);
   document.removeEventListener("mousemove", onGlobalMouseMove);
+  document.removeEventListener("mousedown", onGlobalMouseDown);
 });
 
 desktop.$subscribe(() => {
@@ -416,7 +438,13 @@ desktop.$subscribe(() => {
       />
     </div>
     <div class="window-content-holder">
-      <div v-if="slots['toolbar']" class="window-toolbar-holder">
+      <div
+        v-if="slots['toolbar']"
+        class="window-toolbar-holder"
+        @mousedown="toolbarMouseDown"
+        @mouseleave="toolbarMouseLeave"
+        @mouseup="toolbarMouseUp"
+      >
         <slot name="toolbar"></slot>
       </div>
       <div v-if="slots['content']" class="window-content">
@@ -544,13 +572,14 @@ desktop.$subscribe(() => {
   display: flex;
   flex-direction: row;
 
-  padding-top: 5px;
-  padding-left: 8px;
+  padding: 1px;
 
   box-sizing: border-box;
 
   width: 100%;
   min-height: 20px;
+
+  z-index: 5000;
 }
 
 .window-content {

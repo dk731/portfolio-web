@@ -1,6 +1,5 @@
 <script lang="ts" setup>
 const props = defineProps<{
-  title?: string;
   icon?: string;
   onClickClb: () => void;
 }>();
@@ -22,12 +21,11 @@ function onMouseLeave(e: MouseEvent) {
     @click="onClickClb"
   >
     <div
+      v-if="props.icon"
       class="icon-holder"
       :style="{ backgroundImage: `url(${props.icon})` }"
     ></div>
-    <div class="title-holder">
-      {{ props.title }}
-    </div>
+    <slot></slot>
   </div>
 </template>
 
@@ -57,15 +55,5 @@ function onMouseLeave(e: MouseEvent) {
   background-repeat: no-repeat;
 
   margin-right: 6px;
-}
-
-.title-holder {
-  font-size: 11px;
-
-  transform: translate(0px, 2px);
-}
-
-.title-holder::first-letter {
-  text-decoration: underline;
 }
 </style>

@@ -71,6 +71,7 @@ apps.apps[myId] = {
   onMaximizeClb: () => {},
   windowPosition: { x: 0, y: 0 },
   windowSize: { width: 0, height: 0 },
+  isToolbarActive: false,
 };
 
 apps.apps[windowId] = {
@@ -86,6 +87,7 @@ apps.apps[windowId] = {
     y: desktop.size.height / 2 - 100,
   },
   windowSize: { width: 350, height: 200 },
+  isToolbarActive: false,
 };
 
 watch(
@@ -118,10 +120,15 @@ onUnmounted(() => {
     <div class="window-icon"></div>
     <div class="navigation-holder">
       <Win95ListButton
-        :title="`Shut Down...`"
+        :title="`  Shut Down...`"
         :icon="`images/win95/shut_down_normal-2.png`"
         :on-click-clb="onShutdownClick"
-      ></Win95ListButton>
+        :height="`34px`"
+      >
+        <template #default>
+          <div class="list-button-content">Shut Down ...</div>
+        </template>
+      </Win95ListButton>
     </div>
   </div>
   <div v-if="isShutDown" class="shutdown-prompt">
@@ -336,5 +343,14 @@ onUnmounted(() => {
 .button-text {
   font-size: 14px;
   transform: translate(0px, 5px);
+}
+
+.list-button-content {
+  font-size: 11px;
+  white-space: pre;
+  transform: translate(0px, 2px);
+}
+.list-button-content::first-letter {
+  text-decoration: underline;
 }
 </style>

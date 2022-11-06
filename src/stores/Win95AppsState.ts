@@ -12,6 +12,7 @@ export type AppMeta = {
   onMaximizeClb: () => void;
   windowSize: DesktopSize;
   windowPosition: DesktopPoint;
+  isToolbarActive: boolean;
 };
 
 // State where all apps should be registered for all functions to properly work

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, ref, watch } from "vue";
 
 import { useDesktopState } from "@/stores/Win95DesktopState";
 
@@ -74,13 +74,12 @@ function onContext(e: MouseEvent) {
   e.preventDefault();
 }
 
-desktop.$subscribe(() => {
-  // Call resize event to update desktop store size value
-  if (!updatedOnBoot && desktop.storageState.booted) {
-    updatedOnBoot = true;
+watch(
+  () => desktop.storageState.booted,
+  () => {
     onWindowResize();
   }
-});
+);
 
 onMounted(() => {
   document.addEventListener("mouseup", onMouseUp);

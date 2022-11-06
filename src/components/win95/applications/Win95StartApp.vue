@@ -3,7 +3,7 @@ import { useAppsState } from "@/stores/Win95AppsState";
 import { useDesktopState } from "@/stores/Win95DesktopState";
 import { useTaskbarState } from "@/stores/Win95TaskbarState";
 import { useWindowsState } from "@/stores/Win95WindowsState";
-import { onMounted, onUnmounted, ref } from "vue";
+import { onMounted, onUnmounted, ref, watch } from "vue";
 import Win95ListButton from "../base/Win95ListButton.vue";
 import Win95Window from "../base/Win95Window.vue";
 
@@ -69,6 +69,8 @@ apps.apps[myId] = {
   onFocusClb: onOpenClb,
   onMinimizeClb: () => {},
   onMaximizeClb: () => {},
+  windowPosition: { x: 0, y: 0 },
+  windowSize: { width: 0, height: 0 },
 };
 
 apps.apps[windowId] = {
@@ -79,7 +81,22 @@ apps.apps[windowId] = {
   onFocusClb: () => {},
   onMinimizeClb: () => {},
   onMaximizeClb: () => {},
+  windowPosition: {
+    x: desktop.size.width / 2 - 175,
+    y: desktop.size.height / 2 - 100,
+  },
+  windowSize: { width: 350, height: 200 },
 };
+
+watch(
+  () => desktop.size,
+  () => {
+    apps.apps[windowId].windowPosition = {
+      x: desktop.size.width / 2 - 175,
+      y: desktop.size.height / 2 - 100,
+    };
+  }
+);
 
 // Unshift taskbar record, so that it allways is first
 taskbar.apps.unshift(myId);
@@ -111,11 +128,6 @@ onUnmounted(() => {
     <Win95Window
       v-if="isShutDown"
       :id="windowId"
-      :initialPosition="{
-        x: desktop.size.width / 2 - 175,
-        y: desktop.size.height / 2 - 100,
-      }"
-      :initialSize="{ width: 350, height: 200 }"
       :is-draggable="false"
       :is-resizable="false"
       :maximize-visible="false"

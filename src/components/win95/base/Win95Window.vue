@@ -26,8 +26,6 @@ enum ResizeState {
 const props = withDefaults(
   defineProps<{
     id: string;
-    initialPosition: DesktopPoint;
-    initialSize: DesktopSize;
 
     isResizable?: boolean;
     isDraggable?: boolean;
@@ -54,9 +52,10 @@ const taskbar = useTaskbarState();
 const windows = useWindowsState();
 const desktop = useDesktopState();
 
-const myPosition = ref<DesktopPoint>({ ...props.initialPosition });
-const mySize = ref<DesktopSize>({ ...props.initialSize });
 const windowRef = ref(null as any);
+
+const mySize = () => apps.apps[props.id].windowSize;
+const myPosition = () => apps.apps[props.id].windowPosition;
 
 // Width of resize border
 const RESIZE_WIDTH = 4;
@@ -82,17 +81,16 @@ function onMouseMove(e: MouseEvent) {
     };
 
     const sideCheck = relativePosition.x < RESIZE_WIDTH;
-    const sideCheckInv = mySize.value.width - relativePosition.x < RESIZE_WIDTH;
+    const sideCheckInv = mySize().width - relativePosition.x < RESIZE_WIDTH;
     const topBotCheck = relativePosition.y < RESIZE_WIDTH;
-    const topBotCheckInv =
-      mySize.value.height - relativePosition.y < RESIZE_WIDTH;
+    const topBotCheckInv = mySize().height - relativePosition.y < RESIZE_WIDTH;
 
     const cornerSideCheck = relativePosition.x < RESIZE_CORNER_SIZE;
     const cornerSideCheckInv =
-      mySize.value.width - relativePosition.x < RESIZE_CORNER_SIZE;
+      mySize().width - relativePosition.x < RESIZE_CORNER_SIZE;
     const cornerTopBottmoCheck = relativePosition.y < RESIZE_CORNER_SIZE;
     const cornerTopBottmoCheckInv =
-      mySize.value.height - relativePosition.y < RESIZE_CORNER_SIZE;
+      mySize().height - relativePosition.y < RESIZE_CORNER_SIZE;
 
     if (
       (sideCheck || sideCheckInv) &&
@@ -146,8 +144,8 @@ function onMouseCornerOver(e: MouseEvent) {
 
   onMouseMove({
     ...e,
-    clientX: el.left + mySize.value.width,
-    clientY: el.top + mySize.value.height,
+    clientX: el.left + mySize().width,
+    clientY: el.top + mySize().height,
   });
 
   e.stopPropagation();
@@ -183,8 +181,8 @@ function resize(e: MouseEvent) {
     y: e.clientY - prevMousePos.y,
   };
 
-  const currentSize = mySize.value;
-  const currentPosition = myPosition.value;
+  const currentSize = mySize();
+  const currentPosition = myPosition();
 
   const sizeDelta = { ...movement };
   const positionDelta = { ...movement };
@@ -246,11 +244,8 @@ function resize(e: MouseEvent) {
   currentPosition.x += positionDelta.x;
   currentPosition.y += positionDelta.y;
 
-  mySize.value.width = currentSize.width;
-  mySize.value.height = currentSize.height;
-
-  myPosition.value.x = currentPosition.x;
-  myPosition.value.y = currentPosition.y;
+  apps.apps[props.id].windowSize = currentSize;
+  apps.apps[props.id].windowPosition = currentPosition;
 
   prevMousePos = { x: e.clientX, y: e.clientY };
 }
@@ -258,7 +253,7 @@ function resize(e: MouseEvent) {
 function move(e: MouseEvent) {
   if (isMaximized.value) return;
 
-  const currentPosition = myPosition.value;
+  const currentPosition = myPosition();
 
   currentPosition.x += e.movementX;
   currentPosition.y += e.movementY;
@@ -270,8 +265,8 @@ function onMouseUp(e: MouseEvent) {
 }
 
 var beforeMaximizeState = {
-  position: { ...myPosition.value },
-  size: { ...mySize.value },
+  position: { ...myPosition() },
+  size: { ...mySize() },
 };
 
 function onMaximizeButton(e: MouseEvent) {
@@ -286,20 +281,20 @@ function onMaximizeButton(e: MouseEvent) {
     isMaximized.value = true;
 
     beforeMaximizeState = {
-      position: { ...myPosition.value },
-      size: { ...mySize.value },
+      position: { ...myPosition() },
+      size: { ...mySize() },
     };
 
-    myPosition.value = { x: 0, y: 0 };
-    mySize.value = {
+    apps.apps[props.id].windowPosition = { x: 0, y: 0 };
+    apps.apps[props.id].windowSize = {
       width: desktop.size.width + 1,
       height: desktop.size.height + 1,
     };
   } else {
     isMaximized.value = false;
 
-    myPosition.value = beforeMaximizeState.position;
-    mySize.value = beforeMaximizeState.size;
+    apps.apps[props.id].windowPosition = beforeMaximizeState.position;
+    apps.apps[props.id].windowSize = beforeMaximizeState.size;
   }
 
   apps.apps[props.id].onMaximizeClb();
@@ -344,7 +339,7 @@ onUnmounted(() => {
 desktop.$subscribe(() => {
   if (!isMaximized.value) return;
 
-  mySize.value = {
+  apps.apps[props.id].windowSize = {
     width: desktop.size.width + 1,
     height: desktop.size.height + 1,
   };
@@ -356,10 +351,10 @@ desktop.$subscribe(() => {
     v-if="desktop.isRunning(props.id)"
     class="win95-window-holder"
     :style="{
-      left: `${myPosition.x}px`,
-      top: `${myPosition.y}px`,
-      width: `${mySize.width}px`,
-      height: `${mySize.height}px`,
+      left: `${apps.apps[props.id].windowPosition.x}px`,
+      top: `${apps.apps[props.id].windowPosition.y}px`,
+      width: `${apps.apps[props.id].windowSize.width}px`,
+      height: `${apps.apps[props.id].windowSize.height}px`,
       zIndex: windows.oppened.indexOf(props.id) * 10 + 10,
       display: windows.oppened.includes(props.id) ? 'flex' : 'none',
     }"

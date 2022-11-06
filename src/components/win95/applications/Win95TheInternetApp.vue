@@ -6,7 +6,9 @@ import { onMounted, ref } from "vue";
 import Win95WindowIconButton from "../base/Win95WindowIconButton.vue";
 import { useAppsState } from "@/stores/Win95AppsState";
 import Win95EditableSelect from "../base/Win95EditableSelect.vue";
+import Win95ToolbarDropdownList from "../base/Win95ToolbarDropdownList.vue";
 
+const myId = `the-internet-app`;
 const apps = useAppsState();
 const internetState = useInternerState();
 const pageRef = ref<any>(null);
@@ -102,7 +104,7 @@ loadPage(`http://localhost:5173/`);
 
 <template>
   <Win95Application
-    :id="`the-internet-app`"
+    :id="myId"
     :icon="`images/win95/the-internet.png`"
     :title="`The Internet`"
     :init-icon="{ position: { x: 10, y: 140 } }"
@@ -113,12 +115,36 @@ loadPage(`http://localhost:5173/`);
     @close-clb="onApplicationClose"
   >
     <template #toolbar>
-      <div class="toolbar-btn">File</div>
-      <div class="toolbar-btn">Edit</div>
-      <div class="toolbar-btn">View</div>
-      <div class="toolbar-btn">Go</div>
-      <div class="toolbar-btn">Favorites</div>
-      <div class="toolbar-btn">Help</div>
+      <Win95ToolbarDropdownList
+        :is-menu-active="apps.apps[myId].isToolbarActive"
+      >
+        <template #header>File</template>
+      </Win95ToolbarDropdownList>
+      <Win95ToolbarDropdownList
+        :is-menu-active="apps.apps[myId].isToolbarActive"
+      >
+        <template #header>Edit</template>
+      </Win95ToolbarDropdownList>
+      <Win95ToolbarDropdownList
+        :is-menu-active="apps.apps[myId].isToolbarActive"
+      >
+        <template #header>View</template>
+      </Win95ToolbarDropdownList>
+      <Win95ToolbarDropdownList
+        :is-menu-active="apps.apps[myId].isToolbarActive"
+      >
+        <template #header>Go</template>
+      </Win95ToolbarDropdownList>
+      <Win95ToolbarDropdownList
+        :is-menu-active="apps.apps[myId].isToolbarActive"
+      >
+        <template #header>Favorites</template>
+      </Win95ToolbarDropdownList>
+      <Win95ToolbarDropdownList
+        :is-menu-active="apps.apps[myId].isToolbarActive"
+      >
+        <template #header>Help</template>
+      </Win95ToolbarDropdownList>
     </template>
     <template #content>
       <div class="navigation-holder toolbar-border">

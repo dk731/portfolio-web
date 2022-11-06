@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import type { DesktopPoint, DesktopSize } from "./Win95DesktopState";
 
 export type AppMeta = {
   id: string; // Id should be unique for each application instance
@@ -9,6 +10,9 @@ export type AppMeta = {
   onFocusClb: () => void;
   onMinimizeClb: () => void;
   onMaximizeClb: () => void;
+  windowSize: DesktopSize;
+  windowPosition: DesktopPoint;
+  isToolbarActive: boolean;
 };
 
 // State where all apps should be registered for all functions to properly work

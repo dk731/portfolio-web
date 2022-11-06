@@ -4,6 +4,8 @@ import { onMounted, onUnmounted, ref } from "vue";
 import Win95SegmentDisplay from "../base/Win95SegmentDisplay.vue";
 import Win95Application from "../base/Win95DesktopApplication.vue";
 import type { DesktopSize } from "@/stores/Win95DesktopState";
+import Win95ToolbarDropdownList from "../base/Win95ToolbarDropdownList.vue";
+import Win95ListButton from "../base/Win95ListButton.vue";
 
 enum IconState {
   Default = "/images/win95/happy-smile.png",
@@ -25,12 +27,35 @@ type CellState = {
   markState: MarkState;
 };
 
+enum GameDifficulty {
+  Easy,
+  Normal,
+  Hard,
+}
+
+const gamePressets = {
+  [GameDifficulty.Easy]: {
+    gameSize: { width: 8, height: 8 },
+    minesCount: 10,
+  },
+  [GameDifficulty.Normal]: {
+    gameSize: { width: 16, height: 16 },
+    minesCount: 40,
+  },
+  [GameDifficulty.Hard]: {
+    gameSize: { width: 30, height: 16 },
+    minesCount: 99,
+  },
+};
+
+const myId = `minesweeper-app`;
 const apps = useAppsState();
 
 var gameSize: DesktopSize = { width: 8, height: 8 };
-var minesCount = 10;
+var minesCount = ref<number>(10);
 var firstMove = true;
 var timerInterval: number;
+const gameDifficulty = ref<GameDifficulty>(GameDifficulty.Easy);
 
 const gameFieldRef = ref(null);
 
@@ -172,6 +197,25 @@ function onRestartClick(e: MouseEvent) {
   iconState.value = IconState.Default;
 }
 
+function onNewClick() {
+  onRestartClick(undefined as any);
+}
+
+function onDifficultyClick(newDifficulty: GameDifficulty) {
+  const newPresset = gamePressets[newDifficulty]!;
+
+  gameSize = newPresset.gameSize;
+  minesCount.value = newPresset.minesCount;
+
+  apps.apps[myId].windowSize = {
+    width: gameSize.width * 16 + 30,
+    height: gameSize.height * 16 + 112,
+  };
+
+  gameDifficulty.value = newDifficulty;
+  onNewClick();
+}
+
 function generateNewGame() {
   const newGameState: CellState[] = [];
 
@@ -181,7 +225,7 @@ function generateNewGame() {
   const bombCells = new Set(
     [...Array(cellsLength).keys()]
       .sort(() => 0.5 - Math.random())
-      .slice(0, minesCount)
+      .slice(0, minesCount.value)
   );
 
   const getCellValue = (cellId: number) => {
@@ -220,7 +264,7 @@ onUnmounted(() => {
 
 <template>
   <Win95Application
-    :id="`minesweeper-app`"
+    :id="myId"
     :icon="`images/win95/minesweeper-mine.png`"
     :title="`Minesweeper`"
     :init-icon="{ position: { x: 10, y: 200 } }"
@@ -233,8 +277,62 @@ onUnmounted(() => {
     @open-clb="onOpenClb"
   >
     <template #toolbar>
-      <div class="toolbar-btn">Game</div>
-      <div class="toolbar-btn">Help</div>
+      <Win95ToolbarDropdownList
+        :is-menu-active="apps.apps[myId].isToolbarActive"
+      >
+        <template #header>Game</template>
+        <template #dropdown>
+          <Win95ListButton :on-click-clb="onNewClick">
+            <template #default
+              ><div class="list-button-content">New</div></template
+            >
+          </Win95ListButton>
+          <Win95ListButton
+            :on-click-clb="() => onDifficultyClick(GameDifficulty.Easy)"
+          >
+            <template #default
+              ><div
+                v-if="gameDifficulty == GameDifficulty.Easy"
+                class="tick-icon"
+              >
+                ✔
+              </div>
+              <div class="list-button-content">Begginer</div></template
+            >
+          </Win95ListButton>
+          <Win95ListButton
+            :on-click-clb="() => onDifficultyClick(GameDifficulty.Normal)"
+          >
+            <template #default
+              ><div
+                v-if="gameDifficulty == GameDifficulty.Normal"
+                class="tick-icon"
+              >
+                ✔
+              </div>
+              <div class="list-button-content">Entermidiate</div></template
+            >
+          </Win95ListButton>
+          <Win95ListButton
+            :on-click-clb="() => onDifficultyClick(GameDifficulty.Hard)"
+          >
+            <template #default>
+              <div
+                v-if="gameDifficulty == GameDifficulty.Hard"
+                class="tick-icon"
+              >
+                ✔
+              </div>
+              <div class="list-button-content">Expert</div></template
+            >
+          </Win95ListButton>
+        </template>
+      </Win95ToolbarDropdownList>
+      <Win95ToolbarDropdownList
+        :is-menu-active="apps.apps[myId].isToolbarActive"
+      >
+        <template #header>Help</template>
+      </Win95ToolbarDropdownList>
     </template>
     <template #content>
       <div
@@ -330,13 +428,6 @@ onUnmounted(() => {
 
   box-shadow: inset 2px 2px #85898d, inset -2px -2px #ffffff;
 }
-.toolbar-btn {
-  font-size: 13px;
-  margin-right: 8px;
-}
-.toolbar-btn::first-letter {
-  text-decoration: underline;
-}
 
 .reset-button {
   position: relative;
@@ -402,6 +493,7 @@ onUnmounted(() => {
 }
 
 .cell-text {
+  height: 100%;
   text-align: center;
   font-size: 13px;
   transform: translate(0px, 3px);
@@ -450,5 +542,20 @@ onUnmounted(() => {
 }
 .cell8 {
   color: #000000;
+}
+
+.list-button-content {
+  padding: 2px;
+  padding-left: 13px;
+
+  transform: translate(0px, 2px);
+}
+
+.list-button-content::first-letter {
+  text-decoration: underline;
+}
+
+.tick-icon {
+  position: absolute;
 }
 </style>

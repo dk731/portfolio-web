@@ -105,6 +105,8 @@ apps.apps[myId] = {
   onFocusClb: onFocusClb,
   onMinimizeClb: onMinimizeClb,
   onMaximizeClb: onMaximizeClb,
+  windowPosition: props.initWindow.position,
+  windowSize: props.initWindow.size,
 };
 </script>
 
@@ -116,8 +118,6 @@ apps.apps[myId] = {
 
   <Win95Window
     :id="myId"
-    :initialPosition="props.initWindow.position"
-    :initialSize="props.initWindow.size"
     :is-resizable="props.isResizable"
     :is-maximizable="props.isMaximizable"
     :is-draggable="props.isDragabble"

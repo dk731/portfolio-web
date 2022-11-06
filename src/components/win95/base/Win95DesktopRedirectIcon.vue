@@ -36,6 +36,9 @@ apps.apps[myId] = {
   onFocusClb: () => {},
   onMinimizeClb: () => {},
   onMaximizeClb: () => {},
+  windowPosition: { x: 0, y: 0 },
+  windowSize: { width: 0, height: 0 },
+  isToolbarActive: false,
 };
 </script>
 

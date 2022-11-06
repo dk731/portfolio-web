@@ -107,6 +107,7 @@ apps.apps[myId] = {
   onMaximizeClb: onMaximizeClb,
   windowPosition: props.initWindow.position,
   windowSize: props.initWindow.size,
+  isToolbarActive: false,
 };
 </script>
 

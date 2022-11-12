@@ -14,6 +14,7 @@ import Win95TheInternetApp from "./applications/Win95TheInternetApp.vue";
 import Win95MinesweeperApp from "./applications/Win95MinesweeperApp.vue";
 import Win95DesktopRedirectIcon from "./base/Win95DesktopRedirectIcon.vue";
 import Win95BootScreen from "./Win95BootScreen.vue";
+import Win95SendMessage from "./applications/Win95SendMessage.vue";
 
 const desktopSelect = useDesktopSelectState();
 const desktop = useDesktopState();
@@ -110,6 +111,8 @@ onUnmounted(() => {
         <Win95DoomApp></Win95DoomApp>
         <Win95TheInternetApp></Win95TheInternetApp>
         <Win95MinesweeperApp></Win95MinesweeperApp>
+        <Win95SendMessage></Win95SendMessage>
+
         <Win95DesktopRedirectIcon
           :icon="`images/GitHub-Mark-32px.png`"
           :title="`Github`"

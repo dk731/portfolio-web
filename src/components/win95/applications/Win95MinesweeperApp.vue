@@ -253,7 +253,7 @@ function onOpenClb() {
 }
 
 onMounted(() => {
-  apps.apps["minesweeper-app"].onOpenClb();
+  // apps.apps["minesweeper-app"].onOpenClb();
   document.addEventListener("mouseup", onMouseUp);
 });
 

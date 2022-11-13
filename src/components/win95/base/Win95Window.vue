@@ -67,6 +67,8 @@ const isDragged = ref<boolean>(false);
 var resizeState: ResizeState = ResizeState.None;
 
 function onMouseMove(e: MouseEvent) {
+  if (desktop.activeApp != props.id) return;
+
   if (
     !isResizing.value &&
     !isDragged.value &&
@@ -166,17 +168,22 @@ function onMouseDown(e: MouseEvent) {
     prevMousePos = { x: e.clientX, y: e.clientY };
   }
 
+  apps.apps[props.id].onFocusClb();
   e.stopPropagation();
 }
 
 function onDraggableMouseDown() {
-  if (props.isDraggable) {
-    isResizing.value = false;
-    isDragged.value = true;
-  }
+  setTimeout(() => {
+    if (props.isDraggable && desktop.activeApp == props.id) {
+      isResizing.value = false;
+      isDragged.value = true;
+    }
+  }, 10);
 }
 
 function resize(e: MouseEvent) {
+  if (desktop.activeApp != props.id) return;
+
   const movement = {
     x: e.clientX - prevMousePos.x,
     y: e.clientY - prevMousePos.y,
@@ -271,6 +278,7 @@ var beforeMaximizeState = {
 };
 
 function onMaximizeButton(e: MouseEvent) {
+  if (desktop.activeApp != props.id) return;
   if (!props.isMaximizable) return;
 
   e.stopPropagation();
@@ -302,6 +310,8 @@ function onMaximizeButton(e: MouseEvent) {
 }
 
 function onMinimizeButton(e: MouseEvent) {
+  if (desktop.activeApp != props.id) return;
+
   e.stopPropagation();
   desktop.activeApp = props.id;
   windows.moveFront(props.id);
@@ -311,6 +321,8 @@ function onMinimizeButton(e: MouseEvent) {
 }
 
 function onCloseButton(e: MouseEvent) {
+  if (desktop.activeApp != props.id) return;
+
   e.stopPropagation();
   desktop.activeApp = props.id;
   windows.moveFront(props.id);
@@ -318,7 +330,7 @@ function onCloseButton(e: MouseEvent) {
   apps.apps[props.id].onCloseClb();
 }
 
-function preventMouseDown(e: MouseEvent) {
+function preventPropagation(e: MouseEvent) {
   e.stopPropagation();
 }
 
@@ -371,7 +383,9 @@ desktop.$subscribe(() => {
 <template>
   <div
     v-if="desktop.isRunning(props.id)"
-    class="win95-window-holder"
+    :class="`win95-window-holder ${
+      desktop.activeApp != props.id && 'input-innactive'
+    }`"
     :style="{
       left: `${apps.apps[props.id].windowPosition.x}px`,
       top: `${apps.apps[props.id].windowPosition.y}px`,
@@ -389,6 +403,7 @@ desktop.$subscribe(() => {
       class="window-upper-bar"
       @mousedown="onDraggableMouseDown"
       :style="{
+        pointerEvents: 'all',
         background: desktop.activeApp == props.id ? `#0000a8` : `#87888f`,
       }"
     >
@@ -408,7 +423,7 @@ desktop.$subscribe(() => {
           backgroundImage: `url(images/win95/minimize-icon.png)`,
           backgroundPosition: `3px 3px`,
         }"
-        @mousedown="preventMouseDown"
+        @mousedown="preventPropagation"
         @click="onMinimizeButton"
       />
       <div
@@ -423,7 +438,7 @@ desktop.$subscribe(() => {
           backgroundPosition: `3px 2px`,
           marginRight: `2px`,
         }"
-        @mousedown="preventMouseDown"
+        @mousedown="preventPropagation"
         @click="onMaximizeButton"
       />
       <div
@@ -433,7 +448,7 @@ desktop.$subscribe(() => {
           backgroundImage: `url(images/win95/close-icon.png)`,
           backgroundPosition: `4px 3px`,
         }"
-        @mousedown="preventMouseDown"
+        @mousedown="preventPropagation"
         @click="onCloseButton"
       />
     </div>
@@ -486,6 +501,10 @@ desktop.$subscribe(() => {
   background: #c0c7c8;
   box-shadow: inset 0px 0px 0px 1px #c0c7c8, inset -1px -1px 0px 1px #87888f,
     inset 1px 1px 0px 1px #ffffff;
+}
+
+.input-innactive > * {
+  pointer-events: none;
 }
 
 .win95-window-holder:before {

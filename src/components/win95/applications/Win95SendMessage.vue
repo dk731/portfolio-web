@@ -4,14 +4,26 @@ import { onMounted, ref } from "vue";
 import Win95Application from "../base/Win95DesktopApplication.vue";
 import Win95EditBox from "../base/Win95EditBox.vue";
 import axios from "axios";
+import Win95Window from "../base/Win95Window.vue";
+import { useWindowsState } from "@/stores/Win95WindowsState";
+import { useDesktopState } from "@/stores/Win95DesktopState";
+import { useTaskbarState } from "@/stores/Win95TaskbarState";
 
 const apps = useAppsState();
+const windows = useWindowsState();
+const desktop = useDesktopState();
+const taskbar = useTaskbarState();
 
 const sendName = ref<string>("");
 const sendEmail = ref<string>("");
 const sendContent = ref<string>("");
+const modalContent = ref<string>("asdasd");
 
-function onSendClick(e: MouseEvent) {
+const myId = `send-message-app`;
+const modalId = `send-message-app-modal`;
+var isModalActive = false;
+
+async function onSendClick(e: MouseEvent) {
   if (
     !(
       sendContent.value.length > 4 &&
@@ -21,25 +33,97 @@ function onSendClick(e: MouseEvent) {
   )
     return;
 
-  axios
-    .post("/api/send_message", {
+  var successeeded = false;
+
+  try {
+    const resp = await axios.post("/api/send_message", {
       name: sendName.value,
       email: sendEmail.value,
       content: sendContent.value,
-    })
-    .then((res) => {
-      if (res.status == 200) console.log("succ");
     });
+
+    successeeded = resp.status == 200;
+  } catch {
+    successeeded = false;
+  }
+
+  if (successeeded) {
+    modalContent.value =
+      "Thank you for your interest !\nMessage has been successfully delivered !";
+  } else {
+    modalContent.value =
+      "Was not able to send your message, please try again :(";
+  }
+
+  onModalOpen();
+
+  isModalActive = true;
+}
+
+function onModalOpen() {
+  windows.add(modalId);
+  desktop.add(modalId);
+
+  const baseApp = apps.apps[myId];
+  const modalApp = apps.apps[modalId];
+
+  apps.apps[modalId].windowPosition = {
+    x:
+      baseApp.windowPosition.x +
+      baseApp.windowSize.width / 2 -
+      modalApp.windowSize.width / 2,
+    y:
+      baseApp.windowPosition.y +
+      baseApp.windowSize.height / 2 -
+      modalApp.windowSize.height / 2,
+  };
+
+  desktop.activeApp = modalId;
+  windows.moveFront(modalId);
+}
+
+function onBaseAppFocus() {
+  if (!isModalActive) return;
+
+  desktop.activeApp = modalId;
+  windows.moveFront(modalId);
 }
 
 onMounted(() => {
   apps.apps["send-message-app"].onOpenClb();
+  // onModalOpen();
 });
+
+function onCloseClick() {
+  isModalActive = false;
+
+  windows.remove(modalId);
+  desktop.remove(modalId);
+  windows.remove(myId);
+  desktop.remove(myId);
+
+  sendName.value = "";
+  sendEmail.value = "";
+  sendContent.value = "";
+}
+
+apps.apps[modalId] = {
+  id: modalId,
+  title: "Message Status",
+  onOpenClb: onModalOpen,
+  onCloseClb: onCloseClick,
+  onFocusClb: () => {},
+  onMinimizeClb: () => {},
+  onMaximizeClb: () => {},
+  windowPosition: { x: 0, y: 0 },
+  windowSize: { width: 250, height: 120 },
+  isToolbarActive: false,
+};
 </script>
 
 <template>
   <Win95Application
-    :id="`send-message-app`"
+    :id="myId"
     :icon="`images/win95/winrep-1.png`"
     :title="`Contanct Me`"
     :init-icon="{ position: { x: 80, y: 20 } }"
@@ -47,6 +131,7 @@ onMounted(() => {
       position: { x: 50, y: 50 },
       size: { width: 350, height: 200 },
     }"
+    :on-focus-clb="onBaseAppFocus"
   >
     <template #content>
       <div class="message-form-holder">
@@ -110,6 +195,25 @@ onMounted(() => {
       </div>
     </template>
   </Win95Application>
+  <Win95Window
+    :id="modalId"
+    :is-resizable="false"
+    :minimize-visible="false"
+    :maximize-visible="false"
+  >
+    <template #content>
+      <div class="modal-holder">
+        <div style="flex-grow: 1; padding: 8px; font-size: 14px">
+          {{ modalContent }}
+        </div>
+        <div style="display: flex; flex-direction: row-reverse">
+          <div class="win95-button modal-button" @click="onCloseClick">
+            <div style="transform: translate(0px, 2px)">Ok</div>
+          </div>
+        </div>
+      </div>
+    </template>
+  </Win95Window>
 </template>
 
 <style scoped>
@@ -136,7 +240,7 @@ onMounted(() => {
 }
 
 .input-holder {
-  height: 30px;
+  min-height: 32px;
   display: flex;
   flex-direction: column;
 
@@ -188,5 +292,25 @@ onMounted(() => {
 
 .input-status {
   color: red;
+}
+
+.modal-holder {
+  width: 100%;
+  height: 100%;
+  padding: 4px;
+  box-sizing: border-box;
+
+  display: flex;
+  flex-direction: column;
+  /* align-items: center; */
+  justify-content: center;
+}
+
+.modal-button {
+  width: 60px;
+  text-align: center;
+  min-height: 18px;
+
+  margin-right: 10px;
 }
 </style>

@@ -74,8 +74,8 @@ jobs:
           username: ${{ secrets.PRODUCTION_USER }}
           port: 22
           key: ${{ secrets.PRODUCTION_PPK }}
-          source: ~/portfolio-web-api
-          target: ~/install_release/
+          source: portfolio-web-api
+          target: ~/tmp_release/
           overwrite: true
 
       - name: Unpacking and installing uploaded release
@@ -104,6 +104,9 @@ jobs:
         run: |
           cd ~/dist
           zip ~/app-ui.zip ./* -r
+          pwd 
+          ls
+          ls ~/
 
       - name: Uploading To Production Server
         uses: appleboy/scp-action@master
@@ -112,7 +115,7 @@ jobs:
           username: ${{ secrets.PRODUCTION_USER }}
           port: 22
           key: ${{ secrets.PRODUCTION_PPK }}
-          source: ~/app-ui.zip
+          source: app-ui.zip
           target: ~/
           strip_components: 1
           overwrite: true
@@ -154,6 +157,8 @@ jobs:
         run: |
           cd ~/artifact
           zip ~/artifact.zip ./* -r
+          pwd
+          ls
 
       - name: Project Information
         id: project_info
@@ -176,6 +181,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ~/artifact.zip
+          asset_path: artifact.zip
           asset_name: artifact.zip
           asset_content_type: application/zip

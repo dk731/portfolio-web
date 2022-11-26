@@ -5,21 +5,17 @@ on:
     branches: [master]
 
 jobs:
-  init_repo:
+  build_api_server:
+    name: Build Portfolio API Server
+
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
 
-  build_api_server:
-    name: Build Portfolio API Server
-    needs: init_repo
-
-    runs-on: ubuntu-latest
-
-    steps:
       - name: Chaning directory
         run: cd ./server
 
@@ -32,15 +28,24 @@ jobs:
           command: build
           args: --release --all-features
 
+      - uses: actions/upload-artifact@v2
+        with:
+          name: api_server_release
+          path: ./server/target/release/portfolio-web-api
+
   build_ui_application:
     runs-on: ubuntu-latest
-    needs: init_repo
 
     strategy:
       matrix:
         node_version: ["16.x"]
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
       - name: Chaning directory
         run: cd ./app-ui
 
@@ -55,16 +60,22 @@ jobs:
       - name: Build Project
         run: yarn build
 
-      - name: Packing build result
-        run: |
-          cd ./dist
-          zip ../app-ui.zip ./* -r
+      - uses: actions/upload-artifact@v2
+        with:
+          name: app_ui_release
+          path: ./app-ui/dist
 
   install_api_server:
     runs-on: ubuntu-latest
-    needs: [build_ui_application]
+    needs: [build_api_server]
 
     steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: api_server_release
+
       - name: Uploading to production server
         uses: appleboy/scp-action@master
         with:
@@ -72,7 +83,7 @@ jobs:
           username: ${{ secrets.PRODUCTION_USER }}
           port: 22
           key: ${{ secrets.PRODUCTION_PPK }}
-          source: ./server/target/release/portfolio-web-api
+          source: ./portfolio-web-api
           target: ~/install_release/
           overwrite: true
 
@@ -90,6 +101,17 @@ jobs:
     needs: [build_ui_application]
 
     steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: app_ui_release
+
+      - name: Packing build result
+        run: |
+          cd ./dist
+          zip ../app-ui.zip ./* -r
+
       - name: Uploading To Production Server
         uses: appleboy/scp-action@master
         with:
@@ -97,7 +119,7 @@ jobs:
           username: ${{ secrets.PRODUCTION_USER }}
           port: 22
           key: ${{ secrets.PRODUCTION_PPK }}
-          source: ./app-ui/app-ui.zip
+          source: ./app-ui.zip
           target: ~/
           strip_components: 1
           overwrite: true

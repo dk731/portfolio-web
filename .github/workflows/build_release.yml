@@ -104,9 +104,8 @@ jobs:
         run: |
           cd ~/dist
           zip ~/app-ui.zip ./* -r
-          pwd 
-          ls
-          ls ~/
+          export ARCHIVE_PATH=$(readlink -f ~/app-ui.zip)
+          echo "::set-env name=ARCHIVE_PATH::$ARCHIVE_PATH"
 
       - name: Uploading To Production Server
         uses: appleboy/scp-action@master
@@ -115,7 +114,7 @@ jobs:
           username: ${{ secrets.PRODUCTION_USER }}
           port: 22
           key: ${{ secrets.PRODUCTION_PPK }}
-          source: app-ui.zip
+          source: $ARCHIVE_PATH
           target: ~/
           strip_components: 1
           overwrite: true

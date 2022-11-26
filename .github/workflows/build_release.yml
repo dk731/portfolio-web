@@ -19,7 +19,7 @@ jobs:
 
       - name: Building server
         run: |
-          run: cd ./server
+          cd ./server
           cargo build --release
 
       - uses: actions/upload-artifact@v2
@@ -65,6 +65,7 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: api_server_release
+          path: ~/
 
       - name: Uploading to production server
         uses: appleboy/scp-action@master
@@ -73,7 +74,7 @@ jobs:
           username: ${{ secrets.PRODUCTION_USER }}
           port: 22
           key: ${{ secrets.PRODUCTION_PPK }}
-          source: ./portfolio-web-api
+          source: ~/portfolio-web-api
           target: ~/install_release/
           overwrite: true
 
@@ -97,11 +98,12 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: app_ui_release
+          path: ~/dist
 
       - name: Packing build result
         run: |
-          cd ./dist
-          zip ../app-ui.zip ./* -r
+          cd ~/dist
+          zip ~/app-ui.zip ./* -r
 
       - name: Uploading To Production Server
         uses: appleboy/scp-action@master
@@ -110,7 +112,7 @@ jobs:
           username: ${{ secrets.PRODUCTION_USER }}
           port: 22
           key: ${{ secrets.PRODUCTION_PPK }}
-          source: ./app-ui.zip
+          source: ~/app-ui.zip
           target: ~/
           strip_components: 1
           overwrite: true
@@ -132,26 +134,26 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Prepearing final release artifact
+        run: |
+          mkdir ~/artifact
+          mkdir ~/artifact/server
+          mkdir ~/artifact/app-ui
+
       - uses: actions/download-artifact@v2
         with:
           name: app_ui_release
+          path: ~/artifact/app-ui
 
       - uses: actions/download-artifact@v2
         with:
           name: api_server_release
-
-      - name: Prepearing final release artifact
-        run: |
-          mkdir ./artifact
-          mkdir ./artifact/server
-          mkdir ./artifact/app-ui
-          cp ./portfolio-web-api ./artifact/server
-          cp -a ./dist/. ./artifact/app-ui
+          path: ~/artifact/server
 
       - name: Packing final release artifact
         run: |
-          cd ./artifact
-          zip ../artifact.zip ./* -r
+          cd ~/artifact
+          zip ~/artifact.zip ./* -r
 
       - name: Project Information
         id: project_info
@@ -174,6 +176,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifact.zip
+          asset_path: ~/artifact.zip
           asset_name: artifact.zip
           asset_content_type: application/zip

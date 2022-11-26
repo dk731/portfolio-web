@@ -2,7 +2,7 @@ name: Release Portfolio Build
 
 on:
   push:
-    branches: [master]
+    branches: [development]
 
 jobs:
   build_api_server:
@@ -11,10 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v3
 
       - name: Chaning directory
         run: cd ./server
@@ -35,16 +32,14 @@ jobs:
 
   build_ui_application:
     runs-on: ubuntu-latest
+    name: Build Portfolio Application UI
 
     strategy:
       matrix:
         node_version: ["16.x"]
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v3
 
       - name: Chaning directory
         run: cd ./app-ui
@@ -68,9 +63,10 @@ jobs:
   install_api_server:
     runs-on: ubuntu-latest
     needs: [build_api_server]
+    name: Install Portfolio API Server
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - uses: actions/download-artifact@v2
         with:
@@ -99,9 +95,10 @@ jobs:
   install_ui_application:
     runs-on: ubuntu-latest
     needs: [build_ui_application]
+    name: Install Portfolio Application UI
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - uses: actions/download-artifact@v2
         with:
@@ -136,15 +133,26 @@ jobs:
   upload_release_artifact:
     runs-on: ubuntu-latest
     needs: [build_api_server, build_ui_application]
+    name: Upload Resulting Artifact
 
     steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: app_ui_release
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: api_server_release
+
       - name: Prepearing final release artifact
         run: |
           mkdir ./artifact
           mkdir ./artifact/server
           mkdir ./artifact/app-ui
-          cp ./server/target/release/portfolio-web-api ./artifact/server
-          cp -a ./app-ui/dist/. ./artifact/app-ui
+          cp ./portfolio-web-api ./artifact/server
+          cp -a ./dist/. ./artifact/app-ui
 
       - name: Packing final release artifact
         run: |

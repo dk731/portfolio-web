@@ -20,10 +20,8 @@ jobs:
         with:
           toolchain: stable
 
-      - uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release --all-features
+      - name: Build server
+        run: cargo build --release
 
       - uses: actions/upload-artifact@v2
         with:

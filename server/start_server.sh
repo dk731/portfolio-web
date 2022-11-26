@@ -3,4 +3,5 @@
 echo "Stopping running server"
 killall screen
 
-screen -dm bash -c "source ~/.profile; ./target/release/portfolio-web-api; read"
+cp ~/tmp_release/* ~/release/
+screen -dm bash -c "source ~/.profile; ~/release/portfolio-web-api; read"

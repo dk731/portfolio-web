@@ -11,22 +11,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
-      - name: Chaning directory
-        run: cd ./server
+      - uses: actions/checkout@v3
 
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
 
-      - uses: actions-rs/cargo@v1
-        with:
-          command: build
-          args: --release --all-features
+      - name: Building server
+        run: |
+          cd ./server
+          cargo build --release
 
       - uses: actions/upload-artifact@v2
         with:
@@ -35,30 +29,25 @@ jobs:
 
   build_ui_application:
     runs-on: ubuntu-latest
+    name: Build Portfolio Application UI
 
     strategy:
       matrix:
         node_version: ["16.x"]
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-
-      - name: Chaning directory
-        run: cd ./app-ui
+      - uses: actions/checkout@v3
 
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Install dependencies
-        run: yarn install
-
-      - name: Build Project
-        run: yarn build
+      - name: Build Application UI
+        run: |
+          cd ./app-ui
+          yarn install  
+          yarn build
 
       - uses: actions/upload-artifact@v2
         with:
@@ -68,9 +57,10 @@ jobs:
   install_api_server:
     runs-on: ubuntu-latest
     needs: [build_api_server]
+    name: Install Portfolio API Server
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - uses: actions/download-artifact@v2
         with:
@@ -84,7 +74,7 @@ jobs:
           port: 22
           key: ${{ secrets.PRODUCTION_PPK }}
           source: ./portfolio-web-api
-          target: ~/install_release/
+          target: ~/tmp_release/
           overwrite: true
 
       - name: Unpacking and installing uploaded release
@@ -99,17 +89,19 @@ jobs:
   install_ui_application:
     runs-on: ubuntu-latest
     needs: [build_ui_application]
+    name: Install Portfolio Application UI
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - uses: actions/download-artifact@v2
         with:
           name: app_ui_release
+          path: dist
 
       - name: Packing build result
         run: |
-          cd ./dist
+          cd dist
           zip ../app-ui.zip ./* -r
 
       - name: Uploading To Production Server
@@ -136,15 +128,26 @@ jobs:
   upload_release_artifact:
     runs-on: ubuntu-latest
     needs: [build_api_server, build_ui_application]
+    name: Upload Resulting Artifact
 
     steps:
+      - uses: actions/checkout@v3
+
       - name: Prepearing final release artifact
         run: |
           mkdir ./artifact
           mkdir ./artifact/server
           mkdir ./artifact/app-ui
-          cp ./server/target/release/portfolio-web-api ./artifact/server
-          cp -a ./app-ui/dist/. ./artifact/app-ui
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: app_ui_release
+          path: artifact/app-ui
+
+      - uses: actions/download-artifact@v2
+        with:
+          name: api_server_release
+          path: artifact/server
 
       - name: Packing final release artifact
         run: |

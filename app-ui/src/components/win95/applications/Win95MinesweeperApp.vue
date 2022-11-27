@@ -77,7 +77,11 @@ function onMouseDown(e: MouseEvent) {
   updateActiveCell(e);
 }
 function onMouseUp(e: MouseEvent) {
-  if (iconState.value == IconState.Lose || iconState.value == IconState.Win)
+  if (
+    iconState.value == IconState.Lose ||
+    iconState.value == IconState.Win ||
+    iconState.value != IconState.Scream
+  )
     return;
 
   iconState.value = IconState.Default;
@@ -267,7 +271,7 @@ onUnmounted(() => {
     :id="myId"
     :icon="`images/win95/minesweeper-mine.png`"
     :title="`Minesweeper`"
-    :init-icon="{ position: { x: 10, y: 200 } }"
+    :init-icon="{ position: { x: 90, y: 200 } }"
     :init-window="{
       position: { x: 50, y: 50 },
       size: { width: 158, height: 240 },

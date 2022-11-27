@@ -29,11 +29,19 @@ function onOpenClb() {
 function onShutDownExecute() {
   desktop.needBoot = false;
 
-  localStorage.clear();
+  localStorage.setItem(
+    "win95State",
+    JSON.stringify({
+      booted: false,
+      isShutDown: shutDownVariant.value == ShutDownVariant.ShutDown,
+    })
+  );
+  console.log({
+    booted: false,
+    isShutDown: shutDownVariant.value == ShutDownVariant.ShutDown,
+  });
 
-  if (shutDownVariant.value == ShutDownVariant.Restart) location.reload();
-
-  desktop.storageState.booted = false;
+  location.reload();
 }
 
 function onShutdownClick() {

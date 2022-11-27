@@ -28,12 +28,19 @@ const myPosition = ref<DesktopPoint>({ ...props.initialPosition });
 // Selection trigger rect size
 const selectRect: DesktopSize = { width: 30, height: 25 };
 
+var initialSelect = false;
 var hasDragged = false;
 
 function onMouseUp(e: MouseEvent) {
-  if (!hasDragged && !e.ctrlKey) {
+  if (!hasDragged && !e.ctrlKey && !initialSelect) {
     desktopSelectedIcons.icons = [props.id];
   }
+
+  initialSelect = false;
+}
+
+function onGlobalMouseDown(e: MouseEvent) {
+  initialSelect = !desktopSelectedIcons.icons.includes(props.id);
 }
 
 var isDoubleClick = false;
@@ -42,7 +49,7 @@ function onMouseDown(e: MouseEvent) {
 
   if (!e.ctrlKey && !desktopSelectedIcons.includes(props.id))
     desktopSelectedIcons.icons = [props.id];
-  else desktopSelectedIcons.insert(props.id);
+  else if (e.ctrlKey) desktopSelectedIcons.toggle(props.id);
 
   // Update current icon global state
   desktop.focusedApp = props.id;
@@ -114,8 +121,14 @@ desktopSelect.$subscribe((mutation, state) => {
   }
 });
 
-onMounted(() => document.addEventListener("keypress", onKeyPress));
-onUnmounted(() => document.removeEventListener("keypress", onKeyPress));
+onMounted(() => {
+  document.addEventListener("keypress", onKeyPress);
+  document.addEventListener("mousedown", onGlobalMouseDown);
+});
+onUnmounted(() => {
+  document.removeEventListener("keypress", onKeyPress);
+  document.removeEventListener("mousedown", onGlobalMouseDown);
+});
 </script>
 
 <template>

@@ -82,6 +82,13 @@ watch(
   }
 );
 
+watch(
+  () => desktopRef.value,
+  () => {
+    onWindowResize();
+  }
+);
+
 onMounted(() => {
   document.addEventListener("mouseup", onMouseUp);
   window.addEventListener("resize", onWindowResize);
@@ -117,13 +124,13 @@ onUnmounted(() => {
           :icon="`images/GitHub-Mark-32px.png`"
           :title="`Github`"
           :url="`https://github.com/dk731`"
-          :init-icon="{ position: { x: 10, y: 260 } }"
+          :init-icon="{ position: { x: 20, y: 140 } }"
         ></Win95DesktopRedirectIcon>
         <Win95DesktopRedirectIcon
           :icon="`images/win95/camera-0.png`"
           :title="`Blog`"
-          :url="`https://qwe.me/blog`"
-          :init-icon="{ position: { x: 10, y: 320 } }"
+          :url="`https://blog.qwe.me/`"
+          :init-icon="{ position: { x: 90, y: 140 } }"
         ></Win95DesktopRedirectIcon>
 
         <Win95DesktopUserSelect />

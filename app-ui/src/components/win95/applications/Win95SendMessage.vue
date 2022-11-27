@@ -90,7 +90,7 @@ function onBaseAppFocus() {
 }
 
 onMounted(() => {
-  apps.apps["send-message-app"].onOpenClb();
+  // apps.apps["send-message-app"].onOpenClb();
   // onModalOpen();
 });
 
@@ -126,7 +126,7 @@ apps.apps[modalId] = {
     :id="myId"
     :icon="`images/win95/winrep-1.png`"
     :title="`Contanct Me`"
-    :init-icon="{ position: { x: 80, y: 20 } }"
+    :init-icon="{ position: { x: 20, y: 80 } }"
     :init-window="{
       position: { x: 50, y: 50 },
       size: { width: 350, height: 200 },

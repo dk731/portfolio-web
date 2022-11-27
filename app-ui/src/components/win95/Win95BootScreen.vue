@@ -63,19 +63,35 @@ async function onFinishClb() {
 
   hasPressed = true;
   dekstop.cursor = Win95Cursor.loading;
-  await new Promise((r) => setTimeout(r, 1000));
+  await new Promise((r) => setTimeout(r, 500));
   document.querySelector(".clear-canvas")?.classList.add("active");
-  await new Promise((r) => setTimeout(r, 1000));
+  await new Promise((r) => setTimeout(r, 500));
   new Audio("/sounds/startup_sound.wav").play();
-  await new Promise((r) => setTimeout(r, 1000));
-  setTimeout(() => (dekstop.cursor = Win95Cursor.default), 2000);
+  await new Promise((r) => setTimeout(r, 500));
+  setTimeout(() => (dekstop.cursor = Win95Cursor.default), 1000);
   dekstop.storageState.booted = true;
+
+  console.log(main_timeline);
+  // Clear boot screen logic
+  document.querySelector(".clear-canvas")?.classList.remove("active");
 }
 
 function playBootSequence() {
+  updateCursor("cursor1");
+  if (dekstop.storageState.isShutDown) {
+    localStorage.setItem(
+      "win95State",
+      JSON.stringify({
+        booted: false,
+        isShutDown: false,
+      } as DesktopStorageState)
+    );
+    return;
+  }
+
   main_timeline = gsap.timeline({ paused: true });
 
-  // main_timeline.timeScale(10);
+  main_timeline.timeScale(2);
 
   document.addEventListener("keypress", onFinishClb);
   document.addEventListener("touchstart", onFinishClb);
@@ -154,7 +170,6 @@ onMounted(() => {
   cursorInterval = setInterval(() => {
     activeCursor?.classList.toggle("active");
   }, 200);
-  updateCursor("cursor1");
 
   // Do not start boot sequence if no need
   if (!dekstop.needBoot) return;

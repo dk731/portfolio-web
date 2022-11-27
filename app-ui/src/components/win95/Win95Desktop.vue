@@ -82,6 +82,13 @@ watch(
   }
 );
 
+watch(
+  () => desktopRef.value,
+  () => {
+    onWindowResize();
+  }
+);
+
 onMounted(() => {
   document.addEventListener("mouseup", onMouseUp);
   window.addEventListener("resize", onWindowResize);

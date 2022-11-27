@@ -28,12 +28,19 @@ const myPosition = ref<DesktopPoint>({ ...props.initialPosition });
 // Selection trigger rect size
 const selectRect: DesktopSize = { width: 30, height: 25 };
 
+var initialSelect = false;
 var hasDragged = false;
 
 function onMouseUp(e: MouseEvent) {
-  if (!hasDragged && !e.ctrlKey) {
+  if (!hasDragged && !e.ctrlKey && !initialSelect) {
     desktopSelectedIcons.icons = [props.id];
   }
+
+  initialSelect = false;
+}
+
+function onGlobalMouseDown(e: MouseEvent) {
+  initialSelect = !desktopSelectedIcons.icons.includes(props.id);
 }
 
 var isDoubleClick = false;
@@ -114,8 +121,14 @@ desktopSelect.$subscribe((mutation, state) => {
   }
 });
 
-onMounted(() => document.addEventListener("keypress", onKeyPress));
-onUnmounted(() => document.removeEventListener("keypress", onKeyPress));
+onMounted(() => {
+  document.addEventListener("keypress", onKeyPress);
+  document.addEventListener("mousedown", onGlobalMouseDown);
+});
+onUnmounted(() => {
+  document.removeEventListener("keypress", onKeyPress);
+  document.removeEventListener("mousedown", onGlobalMouseDown);
+});
 </script>
 
 <template>
@@ -126,12 +139,12 @@ onUnmounted(() => document.removeEventListener("keypress", onKeyPress));
       top: `${myPosition.y}px`,
     }"
     @mousedown="onMouseDown"
+    @mouseup="onMouseUp"
   >
     <div
       v-if="apps.apps[props.id].icon"
       class="desktop-icon-image"
       :style="{ backgroundImage: `url(${apps.apps[props.id].icon})` }"
-      @mouseup="onMouseUp"
     >
       <div
         v-if="desktopSelectedIcons.includes(props.id)"

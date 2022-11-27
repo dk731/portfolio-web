@@ -1,31 +1,43 @@
 <script lang="ts" setup>
 import { useAppsState } from "@/stores/Win95AppsState";
 import { useDesktopState } from "@/stores/Win95DesktopState";
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import Win95Application from "../base/Win95DesktopApplication.vue";
+import { marked } from "marked";
+import axios from "axios";
 
 const apps = useAppsState();
 const desktop = useDesktopState();
 
+const contentRef = ref<HTMLElement>();
+const aboutMeContent = ref<string>("");
+
 const myId = "about-me-app";
 var firstTimeFocus = true;
+var initialOpen = true;
 
 function onOpenClb() {
-  console.log("Oppened About Me");
+  if (initialOpen) apps.apps[myId].onMinimizeClb();
+  initialOpen = false;
 
-  apps.apps[myId].onMinimizeClb();
-}
-
-function onFocusClb() {
-  if (!firstTimeFocus) return;
-
-  apps.apps[myId].windowPosition = { x: 20, y: 20 };
-  apps.apps[myId].windowSize = {
-    width: desktop.size.width - 40,
-    height: desktop.size.height - 40,
-  };
+  if (firstTimeFocus) {
+    apps.apps[myId].windowPosition = { x: 20, y: 20 };
+    apps.apps[myId].windowSize = {
+      width: desktop.size.width - 40,
+      height: desktop.size.height - 40,
+    };
+  }
   firstTimeFocus = false;
 }
+
+axios
+  .get("https://raw.githubusercontent.com/dk731/dk731/main/README.md")
+  .then((res) => {
+    aboutMeContent.value = aboutMeContent.value + marked.parse(res.data);
+  });
+axios.get("/markdown/about-me.md").then((res) => {
+  aboutMeContent.value = marked.parse(res.data) + aboutMeContent.value;
+});
 
 onMounted(() => {
   setTimeout(apps.apps[myId].onOpenClb, 800);
@@ -43,10 +55,23 @@ onMounted(() => {
       size: { width: 0, height: 0 },
     }"
     @open-clb="onOpenClb"
-    @focus-clb="onFocusClb"
+    @focus-clb="onOpenClb"
   >
-    <template #content>123</template>
+    <template #content>
+      <div v-html="aboutMeContent" class="about-me-content"></div>
+    </template>
   </Win95Application>
 </template>
 
-<style scoped></style>
+<style scoped>
+.about-me-content {
+  padding: 10px;
+  width: 100%;
+  height: 100%;
+
+  box-sizing: border-box;
+  user-select: text;
+
+  overflow-y: auto;
+}
+</style>

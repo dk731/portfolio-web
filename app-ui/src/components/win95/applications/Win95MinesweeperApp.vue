@@ -77,7 +77,11 @@ function onMouseDown(e: MouseEvent) {
   updateActiveCell(e);
 }
 function onMouseUp(e: MouseEvent) {
-  if (iconState.value == IconState.Lose || iconState.value == IconState.Win)
+  if (
+    iconState.value == IconState.Lose ||
+    iconState.value == IconState.Win ||
+    iconState.value != IconState.Scream
+  )
     return;
 
   iconState.value = IconState.Default;

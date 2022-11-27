@@ -26,15 +26,15 @@ Project is automatically deployed to [qwe.me](https://qwe.me/) using [GitHub Act
 
   - [x] About Me
   - [x] Contact Me
-  - [] Projects overview
-  - [] Blog
+  - [ ] Projects overview
+  - [ ] Blog
 
 - [x] Add other cool applications
 
   - [x] Minesweeper
   - [x] Internet Explorer
   - [x] DOOM
-  - [] Other..
+  - [ ] Other..
 
 - [ ] Add mobile touch support
 

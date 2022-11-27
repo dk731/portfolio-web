@@ -7,7 +7,7 @@ import Win95Application from "../base/Win95DesktopApplication.vue";
     :id="`dos-doom-app`"
     :icon="`images/Doom-1-icon.png`"
     :title="`DOOM`"
-    :init-icon="{ position: { x: 10, y: 80 } }"
+    :init-icon="{ position: { x: 160, y: 200 } }"
     :init-window="{
       position: { x: 5, y: 5 },
       size: { width: 688, height: 428 },

@@ -107,7 +107,7 @@ loadPage(`http://localhost:5173/`);
     :id="myId"
     :icon="`images/win95/the-internet.png`"
     :title="`The Internet`"
-    :init-icon="{ position: { x: 10, y: 140 } }"
+    :init-icon="{ position: { x: 20, y: 260 } }"
     :init-window="{
       position: { x: 10, y: 10 },
       size: { width: 600, height: 400 },

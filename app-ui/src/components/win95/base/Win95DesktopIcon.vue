@@ -42,7 +42,7 @@ function onMouseDown(e: MouseEvent) {
 
   if (!e.ctrlKey && !desktopSelectedIcons.includes(props.id))
     desktopSelectedIcons.icons = [props.id];
-  else desktopSelectedIcons.insert(props.id);
+  else if (e.ctrlKey) desktopSelectedIcons.toggle(props.id);
 
   // Update current icon global state
   desktop.focusedApp = props.id;
@@ -126,12 +126,12 @@ onUnmounted(() => document.removeEventListener("keypress", onKeyPress));
       top: `${myPosition.y}px`,
     }"
     @mousedown="onMouseDown"
-    @mouseup="onMouseUp"
   >
     <div
       v-if="apps.apps[props.id].icon"
       class="desktop-icon-image"
       :style="{ backgroundImage: `url(${apps.apps[props.id].icon})` }"
+      @mouseup="onMouseUp"
     >
       <div
         v-if="desktopSelectedIcons.includes(props.id)"

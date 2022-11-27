@@ -267,7 +267,7 @@ onUnmounted(() => {
     :id="myId"
     :icon="`images/win95/minesweeper-mine.png`"
     :title="`Minesweeper`"
-    :init-icon="{ position: { x: 10, y: 200 } }"
+    :init-icon="{ position: { x: 90, y: 200 } }"
     :init-window="{
       position: { x: 50, y: 50 },
       size: { width: 158, height: 240 },

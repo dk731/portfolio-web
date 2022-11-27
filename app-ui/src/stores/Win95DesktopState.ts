@@ -20,6 +20,7 @@ export enum Win95Font {
 export type DesktopStorageState = {
   booted: boolean;
   isShutDown: boolean;
+  needAboutVisible: boolean;
 };
 
 type DesktopState = {
@@ -32,7 +33,11 @@ type DesktopState = {
   needBoot: boolean;
 };
 
-const defaultState: DesktopStorageState = { booted: false, isShutDown: false };
+const defaultState: DesktopStorageState = {
+  booted: false,
+  isShutDown: false,
+  needAboutVisible: true,
+};
 const currentState = localStorage.getItem("win95State");
 
 export const useDesktopState = defineStore("win95-desktop-state", {

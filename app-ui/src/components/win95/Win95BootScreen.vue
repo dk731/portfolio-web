@@ -91,7 +91,7 @@ function playBootSequence() {
 
   main_timeline = gsap.timeline({ paused: true });
 
-  main_timeline.timeScale(1.8);
+  main_timeline.timeScale(2);
 
   document.addEventListener("keypress", onFinishClb);
   document.addEventListener("touchstart", onFinishClb);

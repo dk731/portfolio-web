@@ -17,7 +17,17 @@ var firstTimeFocus = true;
 var initialOpen = true;
 
 function onOpenClb() {
-  if (initialOpen) apps.apps[myId].onMinimizeClb();
+  if (initialOpen && !desktop.storageState.needAboutVisible) {
+    apps.apps[myId].onMinimizeClb();
+  } else {
+    localStorage.setItem(
+      "win95State",
+      JSON.stringify({
+        ...desktop.storageState,
+        needAboutVisible: false,
+      })
+    );
+  }
   initialOpen = false;
 
   if (firstTimeFocus) {

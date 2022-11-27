@@ -80,10 +80,10 @@ jobs:
       - name: Unpacking and installing uploaded release
         uses: appleboy/ssh-action@master
         with:
-          host: ${{ secrets.PRODUCTION_HOST }}
-          username: ${{ secrets.PRODUCTION_USER }}
+          host: ${{ secrets.PRODUCTION_SERVER_HOST }}
+          username: ${{ secrets.PRODUCTION_SERVER_USER }}
           port: 22
-          key: ${{ secrets.PRODUCTION_PPK }}
+          key: ${{ secrets.PRODUCTION_SERVER_PPK }}
           script: ~/start_server.sh
 
   install_ui_application:

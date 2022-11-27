@@ -36,6 +36,8 @@ Project is automatically deployed to [qwe.me](https://qwe.me/) using [GitHub Act
   - [x] DOOM
   - [ ] Other..
 
+- [x] Create 100% automatic deployement
+
 - [ ] Add mobile touch support
 
 - [ ] Add Windows95 animations

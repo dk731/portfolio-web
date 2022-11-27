@@ -21,7 +21,7 @@ jobs:
         run: |
           cd ./server
           cargo build --release
-          echo "Server Folder:""
+          echo "Server Folder:"
           ls -laR
 
       - uses: actions/upload-artifact@v2

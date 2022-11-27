@@ -90,7 +90,7 @@ function onBaseAppFocus() {
 }
 
 onMounted(() => {
-  apps.apps["send-message-app"].onOpenClb();
+  // apps.apps["send-message-app"].onOpenClb();
   // onModalOpen();
 });
 

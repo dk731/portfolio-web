@@ -6,7 +6,7 @@ import Win95Application from "../base/Win95DesktopApplication.vue";
 const apps = useAppsState();
 
 onMounted(() => {
-  // apps.apps["about-me-app"].onOpenClb();
+  apps.apps["about-me-app"].onOpenClb();
 });
 </script>
 

@@ -129,7 +129,7 @@ onUnmounted(() => {
         <Win95DesktopRedirectIcon
           :icon="`images/win95/camera-0.png`"
           :title="`Blog`"
-          :url="`https://qwe.me/blog`"
+          :url="`https://blog.qwe.me/`"
           :init-icon="{ position: { x: 10, y: 320 } }"
         ></Win95DesktopRedirectIcon>
 

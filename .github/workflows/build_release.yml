@@ -20,7 +20,7 @@ jobs:
       - name: Building server
         run: |
           cd ./server
-          cargo build --release
+          cargo build --release --all-features
           echo "Server Folder:"
           ls -laR
 

@@ -25,7 +25,8 @@ jobs:
 
       - name: Pack release
         run: |
-          cd ./server/target/release/
+          cd ./server
+          ls -laR
           tar -zcvf ./portfolio-web-api.tar.gz ./portfolio-web-api
 
       - uses: actions/upload-artifact@v2

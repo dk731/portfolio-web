@@ -32,7 +32,7 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: api_server_release
-          path: ./server/target/release/portfolio-web-api.tar.gz
+          path: ./server/target/x86_64-unknown-linux-gnu/release/portfolio-web-api.tar.gz
 
   build_ui_application:
     runs-on: ubuntu-latest

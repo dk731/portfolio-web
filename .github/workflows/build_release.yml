@@ -17,10 +17,15 @@ jobs:
         with:
           toolchain: stable
 
-      - name: Building server
-        run: |
-          cd ./server
-          cargo build --release --all-features
+      # - name: Building server
+      #   run: |
+      #     cd ./server
+      #     cargo build --release --all-features
+      # cargo build --release --manifest-path=./server/Cargo.toml
+      - uses: actions-rs/cargo@v1
+          with:
+            command: build
+            args: --release --manifest-path=./server/Cargo.toml
 
       - name: Pack release
         run: |

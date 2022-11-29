@@ -24,12 +24,13 @@ jobs:
 
       - name: Pack release
         run: |
-          tar -zcvf ./portfolio-web-api.tar.gz ./server/target/release/portfolio-web-api
+          cd ./server/target/release/
+          tar -zcvf ./portfolio-web-api.tar.gz ./portfolio-web-api
 
       - uses: actions/upload-artifact@v2
         with:
           name: api_server_release
-          path: ./portfolio-web-api.tar.gz
+          path: ./server/target/release/portfolio-web-api.tar.gz
 
   build_ui_application:
     runs-on: ubuntu-latest

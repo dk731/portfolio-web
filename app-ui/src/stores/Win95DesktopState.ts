@@ -21,6 +21,7 @@ export type DesktopStorageState = {
   booted: boolean;
   isShutDown: boolean;
   needAboutVisible: boolean;
+  mobileWarning: boolean;
 };
 
 type DesktopState = {
@@ -37,6 +38,7 @@ const defaultState: DesktopStorageState = {
   booted: false,
   isShutDown: false,
   needAboutVisible: true,
+  mobileWarning: true,
 };
 const currentState = localStorage.getItem("win95State");
 

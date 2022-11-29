@@ -43,6 +43,10 @@ function onGlobalMouseDown(e: MouseEvent) {
   initialSelect = !desktopSelectedIcons.icons.includes(props.id);
 }
 
+function onGlobalMouseUp(e: MouseEvent) {
+  initialSelect = false;
+}
+
 var isDoubleClick = false;
 function onMouseDown(e: MouseEvent) {
   hasDragged = false;
@@ -124,10 +128,12 @@ desktopSelect.$subscribe((mutation, state) => {
 onMounted(() => {
   document.addEventListener("keypress", onKeyPress);
   document.addEventListener("mousedown", onGlobalMouseDown);
+  document.addEventListener("mouseup", onGlobalMouseUp);
 });
 onUnmounted(() => {
   document.removeEventListener("keypress", onKeyPress);
   document.removeEventListener("mousedown", onGlobalMouseDown);
+  document.removeEventListener("mouseup", onGlobalMouseUp);
 });
 </script>
 

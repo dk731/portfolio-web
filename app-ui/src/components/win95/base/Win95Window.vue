@@ -278,12 +278,12 @@ var beforeMaximizeState = {
 };
 
 function onMaximizeButton(e: MouseEvent) {
-  if (desktop.activeApp != props.id) return;
+  desktop.activeApp = props.id;
+
   if (!props.isMaximizable) return;
 
   e.stopPropagation();
 
-  desktop.activeApp = props.id;
   windows.moveFront(props.id);
 
   if (!isMaximized.value) {
@@ -310,21 +310,20 @@ function onMaximizeButton(e: MouseEvent) {
 }
 
 function onMinimizeButton(e: MouseEvent) {
-  if (desktop.activeApp != props.id) return;
+  desktop.activeApp = props.id;
 
   e.stopPropagation();
-  desktop.activeApp = props.id;
+
   windows.moveFront(props.id);
-  //
 
   apps.apps[props.id].onMinimizeClb();
 }
 
 function onCloseButton(e: MouseEvent) {
-  if (desktop.activeApp != props.id) return;
+  desktop.activeApp = props.id;
 
   e.stopPropagation();
-  desktop.activeApp = props.id;
+
   windows.moveFront(props.id);
 
   apps.apps[props.id].onCloseClb();

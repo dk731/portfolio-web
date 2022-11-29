@@ -22,15 +22,15 @@ jobs:
           cd ./server
           cargo build --release
 
-      - name: Prepeare server
+      - name: Pack release
         run: |
-          mkdir ./server_build/
-          cp ./server/target/release/portfolio-web-api ./server_build/
+          cd ./server/target/release/
+          tar -zcvf ./portfolio-web-api.tar.gz ./portfolio-web-api
 
       - uses: actions/upload-artifact@v2
         with:
           name: api_server_release
-          path: ./server_build
+          path: ./server/target/release/portfolio-web-api.tar.gz
 
   build_ui_application:
     runs-on: ubuntu-latest
@@ -70,12 +70,6 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: api_server_release
-          path: server_build
-
-      - name: Packing build result
-        run: |
-          cd server_build
-          zip ../server_build.zip ./* -r
 
       - name: Uploading to production server
         uses: appleboy/scp-action@master
@@ -84,7 +78,7 @@ jobs:
           username: ${{ secrets.PRODUCTION_SERVER_USER }}
           port: 22
           key: ${{ secrets.PRODUCTION_SERVER_PPK }}
-          source: ./server_build.zip
+          source: ./portfolio-web-api.tar.gz
           target: ~/tmp_release/
           overwrite: true
 
@@ -158,7 +152,10 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: api_server_release
-          path: artifact/server
+
+      - name: Unpacking server release
+        run: |
+          tar -xzvf ./portfolio-web-api.tar.gz -C ./artifact/server
 
       - name: Packing final release artifact
         run: |

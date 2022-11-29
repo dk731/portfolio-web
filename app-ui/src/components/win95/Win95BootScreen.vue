@@ -63,15 +63,14 @@ async function onFinishClb() {
 
   hasPressed = true;
   dekstop.cursor = Win95Cursor.loading;
-  await new Promise((r) => setTimeout(r, 500));
+  await new Promise((r) => setTimeout(r, 300));
   document.querySelector(".clear-canvas")?.classList.add("active");
-  await new Promise((r) => setTimeout(r, 500));
+  await new Promise((r) => setTimeout(r, 300));
   new Audio("/sounds/startup_sound.wav").play();
-  await new Promise((r) => setTimeout(r, 500));
-  setTimeout(() => (dekstop.cursor = Win95Cursor.default), 1000);
+  await new Promise((r) => setTimeout(r, 300));
+  setTimeout(() => (dekstop.cursor = Win95Cursor.default), 800);
   dekstop.storageState.booted = true;
 
-  console.log(main_timeline);
   // Clear boot screen logic
   document.querySelector(".clear-canvas")?.classList.remove("active");
 }
@@ -91,7 +90,7 @@ function playBootSequence() {
 
   main_timeline = gsap.timeline({ paused: true });
 
-  main_timeline.timeScale(2);
+  main_timeline.timeScale(2.2);
 
   document.addEventListener("keypress", onFinishClb);
   document.addEventListener("touchstart", onFinishClb);

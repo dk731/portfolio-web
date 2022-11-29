@@ -76,14 +76,7 @@ function onContext(e: MouseEvent) {
 }
 
 watch(
-  () => desktop.storageState.booted,
-  () => {
-    onWindowResize();
-  }
-);
-
-watch(
-  () => desktopRef.value,
+  () => [desktopRef.value, desktop.storageState.booted],
   () => {
     onWindowResize();
   }
@@ -92,6 +85,17 @@ watch(
 onMounted(() => {
   document.addEventListener("mouseup", onMouseUp);
   window.addEventListener("resize", onWindowResize);
+
+  if (desktop.storageState.mobileWarning) {
+    alert(
+      "Currently this website does not fully support mobile devices.\nPlease use your desktop for the full experience !"
+    );
+
+    localStorage.setItem(
+      "win95State",
+      JSON.stringify({ ...desktop.storageState, mobileWarning: false })
+    );
+  }
 
   onWindowResize();
 });

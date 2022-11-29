@@ -8,7 +8,7 @@ jobs:
   build_api_server:
     name: Build Portfolio API Server
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
       - uses: actions/checkout@v3
@@ -16,21 +16,23 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+          target: x86_64-unknown-linux-gnu
 
       - name: Building server
         run: |
           cd ./server
-          cargo build --release
+          cargo build --release --target x86_64-unknown-linux-gnu
 
       - name: Pack release
         run: |
-          cd ./server/target/release/
+          cd ./server/target/x86_64-unknown-linux-gnu/release
+          ls -laR
           tar -zcvf ./portfolio-web-api.tar.gz ./portfolio-web-api
 
       - uses: actions/upload-artifact@v2
         with:
           name: api_server_release
-          path: ./server/target/release/portfolio-web-api.tar.gz
+          path: ./server/target/x86_64-unknown-linux-gnu/release/portfolio-web-api.tar.gz
 
   build_ui_application:
     runs-on: ubuntu-latest

@@ -2,7 +2,7 @@ name: Release Portfolio Build
 
 on:
   push:
-    branches: [development]
+    branches: [master]
 
 jobs:
   build_api_server:

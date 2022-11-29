@@ -77,11 +77,7 @@ function onMouseDown(e: MouseEvent) {
   updateActiveCell(e);
 }
 function onMouseUp(e: MouseEvent) {
-  if (
-    iconState.value == IconState.Lose ||
-    iconState.value == IconState.Win ||
-    iconState.value != IconState.Scream
-  )
+  if (iconState.value == IconState.Lose || iconState.value == IconState.Win)
     return;
 
   iconState.value = IconState.Default;
@@ -143,7 +139,8 @@ function onCellMouseUp(e: MouseEvent, cell: CellState) {
     cell.markState == MarkState.Flag ||
     cell.isOppened ||
     iconState.value == IconState.Lose ||
-    iconState.value == IconState.Win
+    iconState.value == IconState.Win ||
+    iconState.value != IconState.Scream
   )
     return;
   const myInd = cell.index;

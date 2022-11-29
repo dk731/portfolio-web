@@ -21,13 +21,15 @@ jobs:
         run: |
           cd ./server
           cargo build --release --all-features
-          echo "Server Folder:"
-          ls -laR
+
+      - name: Pack release
+        run: |
+          tar -zcvf ./portfolio-web-api.tar.gz ./target/release/portfolio/portfolio-web-api
 
       - uses: actions/upload-artifact@v2
         with:
           name: api_server_release
-          path: ./server/target/release/portfolio-web-api
+          path: ./portfolio-web-api.tar.gz
 
   build_ui_application:
     runs-on: ubuntu-latest
@@ -75,7 +77,7 @@ jobs:
           username: ${{ secrets.PRODUCTION_SERVER_USER }}
           port: 22
           key: ${{ secrets.PRODUCTION_SERVER_PPK }}
-          source: ./portfolio-web-api
+          source: ./portfolio-web-api.tar.gz
           target: ~/tmp_release/
           overwrite: true
 
@@ -149,7 +151,10 @@ jobs:
       - uses: actions/download-artifact@v2
         with:
           name: api_server_release
-          path: artifact/server
+
+      - name: Unpacking server release
+        run: |
+          tar -xzvf ./portfolio-web-api.tar.gz -C ./artifact/server
 
       - name: Packing final release artifact
         run: |

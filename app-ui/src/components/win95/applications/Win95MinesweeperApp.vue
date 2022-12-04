@@ -270,7 +270,7 @@ onUnmounted(() => {
     :title="`Minesweeper`"
     :init-icon="{ position: { x: 90, y: 200 } }"
     :init-window="{
-      position: { x: 50, y: 50 },
+      position: { x: 5, y: 5 },
       size: { width: 158, height: 240 },
     }"
     :is-resizable="false"

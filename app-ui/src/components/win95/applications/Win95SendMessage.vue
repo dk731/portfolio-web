@@ -128,7 +128,7 @@ apps.apps[modalId] = {
     :title="`Contanct Me`"
     :init-icon="{ position: { x: 20, y: 80 } }"
     :init-window="{
-      position: { x: 50, y: 50 },
+      position: { x: 5, y: 5 },
       size: { width: 350, height: 200 },
     }"
     :on-focus-clb="onBaseAppFocus"

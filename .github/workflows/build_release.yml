@@ -75,12 +75,12 @@ jobs:
           mkdir ./artifact/server
           mkdir ./artifact/app-ui
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: app_ui_release
           path: artifact/app-ui
 
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: api_server_release
 

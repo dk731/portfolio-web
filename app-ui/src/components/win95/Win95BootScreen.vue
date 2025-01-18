@@ -26,16 +26,16 @@ const quickDataList: { line: number; key: string; value: string }[] = [
   { line: 5, key: "Location:", value: "LATVIA / RIGA" },
   { line: 6, key: "Studying At:", value: "RTU" },
   { line: 7, key: "Pursuing Bachelors:", value: "EMBEDDED SYSTEMS" },
-  { line: 8, key: "Graduation Year:", value: "2024" },
-  {
-    line: 9,
-    key: "Employed as:",
-    value: "SOFTWARE ENGINEERE / DATA ANALYST",
-  },
+  { line: 8, key: "Graduation Year:", value: "2025" },
   {
     line: 10,
-    key: "Working on:",
-    value: "HIGH PERFORMANCE TRADING SYSTEMS",
+    key: "Passion in:",
+    value: "LOW LEVEL PROGRAMMING, COOL STUFF",
+  },
+  {
+    line: 11,
+    key: "Worked on:",
+    value: "HIGH PERFORMANCE TRADING SYSTEMS, EMBEDDED SYSTEMS, WEB DEV",
   },
 ];
 
@@ -136,7 +136,7 @@ function playBootSequence() {
       });
   });
 
-  main_timeline.to("#line11", {
+  main_timeline.to("#line12", {
     text: {
       value: "Boot sequence finished",
     },
@@ -146,14 +146,14 @@ function playBootSequence() {
     onStart: () => updateCursor(`cursor11`),
   });
 
-  main_timeline.to("#line12", {
+  main_timeline.to("#line13", {
     text: {
       value: "Press a key to continue",
     },
     duration: 0.6,
     delay: 0.6,
     ease: "none",
-    onStart: () => updateCursor(`cursor12`),
+    onStart: () => updateCursor(`cursor13`),
   });
 
   main_timeline.play().then(() => {
@@ -201,9 +201,11 @@ onUnmounted(() => {
 
 <span id="line9"/><div class="cursor" id="cursor9" />        <span id="line9_1"/><div class="cursor" id="cursor9_1" />
 <span id="line10"/><div class="cursor" id="cursor10" />         <span id="line10_1"/><div class="cursor" id="cursor10_1" />
+<span id="line11"/><div class="cursor" id="cursor11" />          <span id="line11_1"/><div class="cursor" id="cursor11_1" />
 
-<span id="line11"/><div class="cursor" id="cursor11" />
+
 <span id="line12"/><div class="cursor" id="cursor12" />
+<span id="line13"/><div class="cursor" id="cursor13" />
     </pre>
   </div>
 </template>

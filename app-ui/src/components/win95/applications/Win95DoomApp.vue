@@ -1,5 +1,18 @@
 <script lang="ts" setup>
 import Win95Application from "../base/Win95DesktopApplication.vue";
+import { ref, watchEffect } from "vue";
+
+const dosDoomApp = ref<HTMLElement | null>(null);
+
+watchEffect(() => {
+  if (!dosDoomApp.value) return;
+
+  (window as any).Dos(dosDoomApp.value, {
+    url: "https://cdn.dos.zone/custom/dos/doom.jsdos",
+    workerThread: true,
+    theme: "dark",
+  });
+});
 </script>
 
 <template>
@@ -15,13 +28,8 @@ import Win95Application from "../base/Win95DesktopApplication.vue";
     :is-resizable="false"
   >
     <template #content>
-      <div class="dos-doom-holder">
-        <iframe
-          class="dos-doom"
-          src="https://dos.zone/player/?bundleUrl=https%3A%2F%2Fcdn.dos.zone%2Fcustom%2Fdos%2Fdoom.jsdos?anonymous=1"
-        >
-          <div>123</div>
-        </iframe>
+      <div ref="dosDoomApp" class="dos-doom-holder">
+        Was not able to load doom
       </div>
     </template>
   </Win95Application>

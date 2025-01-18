@@ -150,7 +150,7 @@ function onCellMouseUp(e: MouseEvent, cell: CellState) {
     firstMove = false;
     clearInterval(timerInterval);
     gameTimer.value = 0;
-    while (true) {
+    for (;;) {
       const newGame = generateNewGame();
       if (newGame[myInd].value != -1) {
         gameState.value = newGame;
@@ -496,8 +496,8 @@ onUnmounted(() => {
 .cell-text {
   height: 100%;
   text-align: center;
-  font-size: 13px;
-  transform: translate(0px, 3px);
+  font-size: 12px;
+  transform: translate(0px, -1px);
 }
 
 .flag {

@@ -41,3 +41,9 @@ Project is automatically deployed to [qwe.me](https://qwe.me/) using [GitHub Act
 - [ ] Add mobile touch support
 
 - [ ] Add Windows95 animations
+
+# Build
+
+```
+docker buildx build --platform linux/amd64 -t docker.qwe.me/portfolio-web:latest --push .
+```

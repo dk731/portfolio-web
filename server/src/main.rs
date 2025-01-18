@@ -110,5 +110,9 @@ async fn send_message(_limit: RequestsLimit, user_message: Json<UserMessage>) ->
 
 #[launch]
 fn rocket() -> _ {
-    rocket::build().mount("/api", routes![send_message])
+    println!("Rust API server started at http://localhost:3001");
+
+    rocket::build()
+        .configure(rocket::Config::figment().merge(("port", 3001)))
+        .mount("/api", routes![send_message])
 }
